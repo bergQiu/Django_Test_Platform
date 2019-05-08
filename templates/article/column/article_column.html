@@ -1,0 +1,146 @@
+{% extends "article/base.html" %}
+{% load staticfiles %}
+{% block title %}
+article column 
+{% endblock %}
+{% block content %}
+<div>
+    <p class="text-right">
+        <button id='add_column' class="btn btn-primary">add column</button>
+    </p>
+    <table class="table table-hover">
+        <tr>
+            <td>序號</td>
+            <td>欄目名稱</td>
+            <td>操作</td>
+            <!-- <td>創建時間</td>        -->
+        </tr>
+        {% for column in columns %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ column.column }}</td>
+            <td>
+                <a href="javascript:" name = "edit" class="edit_btn"><span class="glyphicon glyphicon-pencil"></span></a>
+                <a href="javascript:" name = "delete" class="del_btn"><span class="glyphicon glyphicon-trash"></span></a>
+            </td>
+            <!-- <td>{{ column.created }}</td> -->
+        </tr>
+        {% empty %}
+        <p>It`s empty</p>
+        {% endfor %}
+    </table>
+</div>
+
+<script type="text/javascript" src="{% static  'js/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static  'js/layer.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+        $(".edit_btn").click(function(){
+            var name = $(this).parents("tr").children("td").eq(1).text();
+            var id = $(this).parents("tr").children("td").eq(0).text();
+            layer.open({
+                type:1,
+                skin:"layui-layer-rim",
+                title:"Edit column",
+                area:["400px","200px"],
+                content:"<div class='text-center' style='margin-top:20px'><p>請變價欄位的名稱</p><p><input type='text' id='new_name' value=" + name + "></p></div>",
+                btn:["確定","取消"],
+                yes:function(){
+                    new_name = $('#new_name').val();
+                    re = /[.^,/?'";:!@#$%^&*()~`]/;
+                    if (re.test(new_name)){
+                        layer.msg('輸入包含非法字符,請重新輸入！')
+                    }else{
+                            // alert(column_name)
+                            $.ajax({
+                                url:"{% url 'article:rename_article_column' %}",
+                                type:'POST',
+                                data:{'column_id':id,'column_name':new_name,'old_name':name},
+                                success:function(e){
+                                    if(e == '1'){
+                                        parent.location.reload();
+                                        // layer.msg('nice')
+                                    }else{
+                                        layer.msg('此欄目已經存在請更換名稱！')
+                                    }
+                                },
+                            })
+                    }
+                }
+            })
+        })
+
+        $(".del_btn").click(function(){
+            var name = $(this).parents("tr").children("td").eq(1).text();
+            var column_id = $(this).parents("tr").children("td").eq(0).text();
+            // alert(column_id)
+            layer.open({
+                type:1,
+                skin:"layui-layer-rim",
+                title:"Delete column",
+                area:["400px","200px"],
+                content:"<div class='text-center' style='margin-top:20px'><p>是否需要刪除"+ name +"欄目</p></div>",
+                btn:["確定","取消"],
+                yes:function(){
+                    $.ajax({
+                        url:"{% url 'article:del_article_column' %}",
+                        type:"POST",
+                        data:{'column_id':column_id,'column_name':name},
+                        success:function(e){
+                            if(e == "1"){
+                                parent.location.reload();
+                                // layer.msg("Has been deleted")
+                            }else{
+                                layer.msg("刪除失敗")
+                            }
+                        }
+                    })
+                }
+
+            })
+        })
+
+        $("#add_column").click(function(){
+            var index = layer.open({
+                type:1,
+                skin:"layui-layer-rim",
+                area:["400px","200px"],
+                title:"新增欄目",
+                content:"<div class='text-center' style='margin-top:20px'><p>請輸入新的欄位名稱</p><p><input type='text' id='id_column'></p></div>",
+                btn:['確定','取消'],
+                // moveOut:true,
+                // shift:1,彈出動畫
+                // yes:function(){
+                //     layer.alert('666',{icon:1})
+                // },
+                yes:function(){
+                    column_name = $('#id_column').val();
+                    re = /[.^,/?'";:!@#$%^&*()~`]/;
+                    if (re.test(column_name)){
+                        layer.msg('輸入包含非法字符,請重新輸入！')
+                    }else{
+                            // alert(column_name)
+                            $.ajax({
+                                url:"{% url 'article:article_column' %}",
+                                type:'POST',
+                                data:{'column':column_name},
+                                success:function(e){
+                                    if(e == '1'){
+                                        parent.location.reload();
+                                        // layer.msg('nice')
+                                    }else{
+                                        layer.msg('此欄目已經存在請更換名稱！')
+                                    }
+                                },
+                            })
+                    }
+                    
+                },
+                cancel:function(index,layero){
+                    // layer.close()
+                }
+            })
+        })
+    })
+</script>
+{% endblock %}

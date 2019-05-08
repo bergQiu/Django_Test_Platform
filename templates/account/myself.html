@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}myself info{% endblock %}
+{% block content %}
+<script type="text/javascript" src="{% static  'js/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static  'js/layer.js' %}"></script>
+<script type="text/javascript">
+    function upload_img_layer(){
+        layer.open({
+            title:"Upload photo",
+            area:['870px','600px'],
+            type:2,
+            content:"{% url 'account:my_image' %}"
+        });
+    }
+</script>
+<div class="row text-center vertical-middle-sm">
+    <h1>Myself information</h1>
+    <hr>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-4 text-right"><span>Username：</span></div>
+                <div class="col-md-8 text-left">{{user.username}}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 text-right"><span>Email：</span></div>
+                <div class="col-md-8 text-left">{{user.email}}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 text-right"><span>Birthday：</span></div>
+                <div class="col-md-8 text-left">{{userprofile.birth}}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 text-right"><span>Tel：</span></div>
+                <div class="col-md-8 text-left">{{userprofile.phone}}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 text-right"><span>School：</span></div>
+                <div class="col-md-8 text-left">{{userinfo.school}}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 text-right"><span>Company：</span></div>
+                <div class="col-md-8 text-left">{{userinfo.company}}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 text-right"><span>Profession：</span></div>
+                <div class="col-md-8 text-left">{{userinfo.profession}}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 text-right"><span>Address：</span></div>
+                <div class="col-md-8 text-left">{{userinfo.address}}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 text-right"><span>Aboutme：</span></div>
+                <div class="col-md-8 text-left">{{userinfo.aboutme}}</div>
+            </div>
+            <br>
+            <div class="row">
+                <br>
+                    <a href="{% url 'account:edit_myself_information' %}"><button class="btn btn-primary btn-lg"> Edit </button></a>
+                </div>
+        </div>
+        <div class="col-md-6">           
+            <div style="margin-right:100px">
+                    {% if userinfo.photo %}
+                    <img src="{{ userinfo.photo | striptags }}" class="img-circle" id="my_photo" name="user_face">
+                    {% else %}
+                    <img name="user_face" src="{% static 'img/Koala.jpg' %}" class="img-circle" id="my_photo">
+                    {% endif %}
+            </div> 
+                <br>
+                <div style="margin-right:100px"><button class="btn btn-primary btn-lg" id="upload_img" onclick="upload_img_layer()">upload my photo</button></div>
+            </div> 
+        </div>
+    </div>
+</div>
+{% endblock %}

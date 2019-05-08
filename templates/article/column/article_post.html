@@ -1,0 +1,78 @@
+{% extends "article/base.html" %}
+{% load staticfiles %}
+{% block title %}
+article column 
+{% endblock %}
+{% block content %}
+<div style="margin-left:0px">
+    <form class="form-horizontal" action="." method="post">
+        {% csrf_token %}
+        <div class="row" style="margin-top:10px">
+            <div class="col-md-2 text-right"><span>標題：</span></div>
+            <div id ="e" class="col-md-10 text-left">{{ article_post_form.title }}</div>
+        </div>
+        <div class="row" style="margin-top:10px">
+            <div class="col-md-2 text-right"><span>欄位：</span></div>
+            <div class="col-md-10 text-column">
+                <select name="" id="which_column">
+                    {% for column in article_columns %}
+                    <option id ="column" value="{{  column.id }}">{{ column.column }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>  
+        <div class="row" style = "margin-top:10px">
+            <div class="col-md-2 text-right"><span>内容：</span></div>
+            <!-- <div id = "id_body " class="col-md-10 text-left">{{ article_post_form.body }}</div> -->
+            <div id = 'editormd' class="col-md-10 text-left" style="margin-left:15px">
+                <textarea name="" id="id_body" style="display:none"></textarea>
+            </div>
+        </div>
+        <div class="row">
+            <input type="button" style ="float:right"   class="btn btn-primary btn-lg" value="發佈" id="publish_article">
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript" src="{% static 'js/jquery.js' %}"> </script>
+<script type="text/javascript" src="{% static 'js/layer.js' %}"> </script>
+<script type="text/javascript" src="{% static 'editor/editormd.min.js' %}"> </script>
+<link rel="stylesheet" href="{% static 'editor/css/style.css' %}">
+<link rel="stylesheet" href="{% static 'editor/css/editormd.css' %}">
+<script type="text/javascript">
+    $(document).ready(function(){
+
+        var editor = editormd("editormd",{
+                width:"80%",
+                height:640,
+                syncScrolling:"single",
+                path:"{% static 'editor/lib/' %}"
+            })
+
+        $("#publish_article").click(function(){
+            // layer.msg("hello world")
+            var title = $("#e").find("input").val();
+            let column_id = $("#which_column").val()
+            let body = $("#id_body").val()
+            // alert(body)
+            $.ajax({
+                url:"{% url 'article:article_post' %}",
+                type:"POST",
+                data:{"title":title,"column_id":column_id,"body":body},
+                success:function(res){
+                    if(res == "1"){
+                        layer.msg("successful",{time:500},function(){
+                            location.href = "{% url 'article:article_list' %}"
+                        })
+                    }else if(res == "2"){
+                        layer.msg("sorry",{time:500})
+                    }else{
+                        layer.msg("commit must have a column,not empty",{time:500})
+                    }
+                }
+            })
+        })
+
+    })
+</script>
+{% endblock %}

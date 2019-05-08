@@ -1,0 +1,47 @@
+{% extends "article/base.html" %}
+{% load staticfiles%}
+{% block titlt %}
+article detail
+{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'editor/css/editormd.preview.css' %}">
+<script src="{% static 'js/jquery.js' %}"></script>
+<script src="{% static 'editor/lib/marked.min.js' %}"></script>
+<script src="{% static 'editor/lib/prettify.min.js' %}"></script>
+<script src="{% static 'editor/lib/raphael.min.js' %}"></script>
+<script src="{% static 'editor/lib/undersocre.min.js' %}"></script>
+<script src="{% static 'editor/lib/sequence-diagram.min.js' %}"></script>
+<script src="{% static 'editor/lib/flowchart.min.js' %}"></script>
+<script src="{% static 'editor/lib/jquery.flowchart.min.js' %}"></script>
+<script src="{% static 'editor/editormd.js' %}"></script>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        editormd.markdownToHTML('editormd-view',{
+            htmlDecode:"style,script,ifram",
+            emoji:true,
+            tasklist:true,
+            tex:true,
+            flowChart:true,
+            sequenceDiagram:true
+        })
+    })
+</script>
+
+<div>
+    <h1>{{ article.title }}     
+        <a href="{% url 'article:article_redit' article.id %}" name = "edit" class="edit_btn"><span style="font-size:15px" class="glyphicon glyphicon-pencil" ></span></a>
+    </h1>
+    <p>{{ user.username }}</p>
+    <div id=editormd-view>
+        <!-- {{ article.body }} -->
+        <textarea id="append-text" style="display:none">{{ article.body }}</textarea>
+    </div>
+    <div>
+        <a href="#"><span class="glyphicon glyphicon-thumbs-up" style="font-size:15px;float:right;margin-right:50px"></span></a>
+        <a href="#"><span class="glyphicon glyphicon-thumbs-down" style="font-size:15px;float:right;margin-right:20px"></span></a>
+    </div>
+</div>
+
+
+{% endblock %}

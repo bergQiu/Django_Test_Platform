@@ -1,0 +1,284 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+    <meta http-equiv="Content-Type" content="text/html"; charset="utf-8" />
+    <head>
+        <link rel="stylesheet" href="{% static 'css/testcss1.css' %}">
+        <script src="{% static 'js/jquery.js' %}"></script>
+        <script>
+        $(document).ready(function(){
+            $("#testid").text("hello world ...").animate(
+                {   
+                    width:"400pX",
+                    height:"200pX"
+                },5000,function()
+                {
+                    $(this).text("good job...").fadeTo(1000,0.5);
+                }
+                );
+            $("tr:gt(0)").mouseover(
+                    function()
+                    {
+                        //alert("hello ");
+                        $(this).css("background","rgb(252,70,30)");
+                        //$(this).find("td").eq(3).css("background","");
+                    }
+             );
+             $("tr:gt(0)").mouseout(
+                    function()
+                    {
+                        $(this).css("background","")
+                        $(this).find("td").eq(3).css("background","")
+                    }
+             );
+
+            $("button").click(function(){
+                            var row = $(this).parent().parent().index() + 1 ;
+                            var col = $(this).parent().index() +1;
+                            if($(this).parent().is("td")){
+                                //alert('Y');
+                                // var row = $(this).parent().parent().index() + 1 ;
+                                // var col = $(this).parent().index() +1;
+                                if($(this).text() == "DOWN"){
+                                    // alert(row);
+                                    // alert(document.getElementById("tableid1").rows.length);
+                                    // if(row- 1 == 1){
+                                    //     alert("The first line can not be moved");
+                                    // }
+                                    if(row  == document.getElementById("tableid1").rows.length){
+                                        alert("The last line can not be moved");
+                                    }
+                                    else{
+                                        // alert(row);
+                                        // alert(col);             
+                                        for(i=0;i<3;i++){
+                                            var obj = $(this).parent().parent().find('td').eq(i).html();
+                                            //alert(JSON.stringify(obj));
+                                            var obj1 = $(this).parent().parent().parent().find('tr').eq(row).find('td').eq(i).html();
+                                            //alert(JSON.stringify(obj1));
+                                            $(this).parent().parent().find('td').eq(i).html(obj1);
+                                            $(this).parent().parent().parent().find('tr').eq(row).find('td').eq(i).html(obj);
+                                        }
+                                    }
+                                }
+                                if($(this).text() == "UP"){
+                                    if(row- 1 == 1){
+                                        alert("The first line can not be moved");
+                                    }
+                                    else{
+                                        for(i=0;i<3;i++){
+                                            var obj = $(this).parent().parent().find('td').eq(i).html();
+                                            //alert(JSON.stringify(obj));
+                                            var obj1 = $(this).parent().parent().parent().find('tr').eq(row-2).find('td').eq(i).html();
+                                            //alert(JSON.stringify(obj1));
+                                            $(this).parent().parent().find('td').eq(i).html(obj1);
+                                            $(this).parent().parent().parent().find('tr').eq(row-2).find('td').eq(i).html(obj);
+                                        }
+
+                                    }                  
+                                }
+                            }
+                        })
+
+            $("#divid2 button").click(function(){
+                        //alert("hello");
+                        //alert($(this).parent().find('form').serialize());
+                        // $.post("http://10.9.235.102:8000/form",$(this).parent().find('form').serialize(),function(data){
+                        //     alert(data);
+                        //     alert('complete');
+                        // });
+                        // http://10.9.235.102:8000/form
+                        $.ajax({
+                            type:"POST",
+                            url:".",
+                            data:$(this).parent().find('form').serialize(),//格式化表單信息
+                            success:function(data){
+                                alert("here"),
+                                alert(JSON.stringify(data))
+                                // data = JSON.parse(data),
+                                // alert(data['content'])
+                                },
+                            error:function(data){},
+                            dataType:"JSON"
+                        })
+
+            })
+         });  
+
+        function T1(){
+                    $("#testid1").fadeToggle(1000);
+                }
+
+        function sort(){
+                    alert(JSON.stringify(document.getElementById('tableid1')));
+                    //alert(("#tableid1 tr"));
+                    var data = document.getElementById("tableid1");
+                    alert (data);
+                    alert (data.rows.length);
+                    var trNum = data.rows.length;
+                    var tdNum = data.rows[0].cells.length;          
+                    var myArray = [];
+                    var indexArray = []                   
+                    for (i=0;i < trNum; i++){
+                        var dataArray = [];
+                        for(j=0;j < tdNum; j++){
+                            dataArray[j] = data.rows[i].cells[j].innerHTML;
+                        }
+                        if(i ==0 ){
+                            indexArray = dataArray;
+                        }
+                        else{
+                            myArray.push(dataArray);
+                        }
+                        // alert(dataArray);
+                        //myArray.push(dataArray);
+                        // alert(myArray);
+                    }
+                    //alert(myArray);
+                    return [myArray,indexArray];
+        }
+
+        function sortby(){           
+                var data = sort();
+                var myArray = data[0];
+                var indexArray = data[1];
+                var str = document.getElementById("inputid1").value;
+                var index = indexArray.indexOf(str);
+
+                var sortArray = [];
+                for(i=0;i<myArray.length;i++){
+                        sortArray.push(myArray[i][index]);
+                }
+                var resultArray = sortArray.slice(0);
+                var resultArray = resultArray.sort();
+                var num = []
+                for(i=0;i<myArray.length;i++){
+                     if(num.indexOf(sortArray.indexOf(resultArray[i])) == -1){                  
+                            num.push(sortArray.indexOf(resultArray[i]));
+                         }
+                     else{
+                            num.push(sortArray.indexOf(resultArray[i],num[num.length-1]+1));
+                     }}
+                for(i=0;i<myArray.length;i++){
+                    var row = num [i];
+                    //alert(myArray[0].length-1);
+                    for(j=0;j<myArray[0].length-1;j++){
+                        $("table tr").eq(i+1).find("td").eq(j).html(myArray[row][j]);
+                    }
+                }
+        }
+        </script>
+    </head>
+    <body>
+        <!-- <div id="testid"></div> -->
+        <div id="testid1" >
+            <li><h1> you aer beautiful!</h1> </li>
+        </div>
+        <button id="testid2" onclick="T1()">test</button><br>
+        <hr>
+        <table id="tableid1">
+            <tr role="head" height="35px">
+                <th sorted="true">name</th>
+                <th sorted="true">sex</th>
+                <th sorted="true">age</th>
+                <th sorted="true" width="150">control</th>
+            </tr>  
+            <tr>
+                <td>berg</td>
+                <td>M</td>
+                <td>27</td>
+                <td >
+                    <button >UP</button>
+                    <button >DOWN</button>
+                </td>
+            </tr>
+            <tr>
+                <td>ted</td>
+                <td>M</td>
+                <td>22</td>
+                <td >
+                    <button >UP</button>
+                    <button >DOWN</button>
+                </td>
+            </tr>
+            <tr>
+                <td>rribon</td>
+                <td>M</td>
+                <td>22</td>
+                <td >
+                    <button >UP</button>
+                    <button >DOWN</button>
+                </td>
+            </tr>
+            <tr>
+                <td>tony</td>
+                <td>M</td>
+                <td>27</td>
+                <td >
+                    <button >UP</button>
+                    <button >DOWN</button>
+                </td>
+            </tr>
+            <tr>
+                <td>haihua</td>
+                <td>M</td>
+                <td>25</td>
+                <td >
+                    <button >UP</button>
+                    <button >DOWN</button>
+                </td>
+            </tr>
+            <tr>
+                <td>nice</td>
+                <td>G</td>
+                <td>66</td>
+                <td >
+                    <button >UP</button>
+                    <button >DOWN</button>
+                </td>
+            </tr>
+        </table>
+        <div id="divid1">
+            Sortby: <input id="inputid1" type="text" value="age"/><br/><br>   
+            <button id="sort" onclick="sortby()">SORT</button><br>
+        </div>
+        <hr>
+        <div>
+                <table id="tableid2" border="1px">
+                    <tr>
+                        <th colspan="4">人員信息統計表</th>
+                    </tr>
+                    <tr>
+                        <td>he5lo</td>
+                        <td>world</td>
+                        <td colspan="2" rowspan="2">hello</td>
+                    </tr>
+                    <tr width="100">
+                        <td colspan="2">hello</td>
+                        <!-- <td>worl3</td> -->
+
+                    </tr>
+                    <tr>
+                        <td colspan="4">hello</td>
+                        <!-- <td colspan="2">worl4</td> -->
+
+                    </tr>
+                </table>
+        </div>
+        <hr>
+        <div id="divid2" >
+             <form id="form1">
+                 {% csrf_token %}
+                Username:<input type="text" value="usernam" name="username"/><br/><br>
+                Passworld:<input type="text"  value="passworld" name="password"/><br/><br>
+                Message:<input type="text"  value="message" name="message"/><br/><br>
+                <!-- <input type="submit" name="submit"  id="submit" value="Submit Form"> -->
+                <!-- <button type="submit">send</button> -->
+            </form> 
+                <button >Submit Form</button>
+        </div>             
+        <hr>
+        <div id="testid"></div>
+        <br><br><br><br><br><br><br><br><br><br><br><br><br><br><hr>
+    </body>
+</html>

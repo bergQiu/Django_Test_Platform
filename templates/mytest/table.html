@@ -1,0 +1,131 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html" ; charset="utf-8" />
+        <title>tabletest</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'css/jquery-ui.css' %}"/>
+        <link rel="stylesheet" type= "text/css" href="{% static 'css/tablecss.css' %}">
+        <script src="{% static 'js/jquery.js' %}"></script><!-- 先申明jquery才能使用jquery-ui -->       
+        <script src="{% static 'js/jquery-ui.js'%}"></script>  
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $("#but1").click(
+                    function () {
+                       alert("666");
+                        str = drawtable($("#inp1").val());
+                        $("#div1").html(str);
+                        $("#div1").find("input").datepicker();
+                    }
+                )
+                //$("#date").datepicker();
+                $("#div input").datepicker();
+
+                $(".radio1").click(function () {
+                    $(".radio1").prop("checked", false);
+                    $(".radio1", this).prop("checked", true);
+                    });
+
+
+                $(".sel").click(
+                function(){
+                    // alert("i am here");
+                    $.ajax({
+                        type:"POST",
+                        url:"http://127.0.0.1:8000/mytest/sel/",
+                        success:function(data){
+                            // alert("success");
+                            // alert(data.result);
+                            alert(data.result)
+                            str = drawtable(data);
+                             $("#div1").html(str);
+                            // alert(typeof(data.result));
+                            // alert(data.result[2][2]);
+                        },
+                        error:function(data){
+                            // alert(type(data))
+                            alert("failed")
+                            // alert("question")
+                            // alert(data)
+                            },
+                        dataType:"JSON",
+                    })
+                    // alert("iere");
+                }
+            )
+            $(".but2").click(
+                function(){
+                        sortby();
+                }
+            )
+
+            });
+
+            function drawtable(data){
+                var tableStr = "<tr><th>ID</th><th>名字</th><th>年紀</th><th>性別</th><th>體重(kg)</th><th>身高(cm)</th></tr>";
+                for (var i = 0; i < data.result.length; i++) {
+                    var obj = data.result[i];
+                    tableStr += "<tr><td>" + (i+1) + "</td><td>" + obj[0] + "</td><td>" + obj[1] + "</td><td>" + obj[2] + "</td><td>" + obj[3] + "</td><td>" + obj[4] + "</td></tr>"
+
+                }
+                return "<table border='1px' class='table' id='table1'>" + tableStr + "</table>"
+            } 
+
+            function sortby(){
+                var array = []//元數據數組
+                $("#table1 tr:gt(0)").each(
+                    function(){
+                        var data =[];
+                        $(this).find("td").each(
+                            function(){
+                                data.push($(this).text());
+                            })
+                        array.push(data);
+                     })
+
+                var index = []//索引數組
+                $("#table1 tr th").each(
+                    function(){
+                        index.push($(this).text())
+                    })
+                var orderby_ = $(".sele1").val();//排序依據
+                var num = index.indexOf(orderby_);
+
+                var result = array.slice(0).sort(function(a,b){
+                    if($(":radio:checked").val() == "UP"){
+                        return a[num]-b[num];//ASC排序
+                    }else if($(":radio:checked").val() == "DOWN"){
+                        return b[num]-a[num];//DESC排序
+                    }})
+
+                for (i =0 ;i <result.length;i++)
+                {
+                    for (j=0;j<result[0].length;j++){
+                        $("#table1 tr:gt(0)").eq(i).find("td").eq(j).html(result[i][j]);
+                    }
+                }                   
+            }
+        </script>
+    </head>
+    <body>
+        <!-- <div>
+            項目數量:<input id="inp1" type="text" value="5" name="num"><button id="but1">保存</button>
+        </div> -->
+        <br>
+        <div class="div2">
+            <button class="sel"  name="select">查詢</button>
+            <button class="but2" name = "orderby">確定</button>   
+            <select class="sele1">
+                <option value="ID">ID</option>
+                <option value="年紀">年紀</option>
+                <option value="體重(kg)">體重</option>
+                <option value="身高(cm)">身高</option>
+                </select>  
+            <div id="orderby1">
+                <label ><input  name="radio1"  type="radio" value= "UP" checked="checked" >升序</label>     
+                <label ><input  name="radio1" type="radio"value= "DOWN" >降序</label>     
+            </div>     
+        </div>
+        <div id="div1"></div>
+    </body>
+</html>

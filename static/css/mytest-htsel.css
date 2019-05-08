@@ -1,0 +1,136 @@
+
+#sel_1{
+    margin-top: 20px;
+    margin-left: 10px;
+    margin-bottom: 20px;
+    font-size: 20px;
+    /* background: linear-gradient(red,yellow); */
+    /* background: radial-gradient(red,yellow,#666); */
+    width: 230px;
+    padding:10px;
+    /* float: left; */
+}
+
+.table_1{
+    border-collapse: collapse;
+    font-size: 20px;
+    margin-top: 30px;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+    text-align: center;
+    width:400px; 
+    border-radius: 10px;
+    /* text-shadow: -3px -3px 5px#666; */
+
+    overflow:hidden; 
+    border-top-left-radius:1em;
+    border-top-right-radius:1em;
+    border-bottom-right-radius:1em;
+    border-bottom-left-radius:1em;
+    float: left;
+    
+}
+
+.table_1 th{
+    padding-left:15px;
+    text-align: left;
+    background-color: #337ab7;
+}
+.table_1 td{
+    padding-left:15px;
+    background-color: #36C0FB;
+    text-align: left
+}
+
+#input_1{
+    /* margin-top: 30px;
+    margin-left: 20px; */
+    /* text-align:center; */
+    margin: auto;
+    font-size: 20px;
+    width: 500px;
+    left: 0;
+    top:30%;
+    right: 0;
+    height: 270px;
+    /* border: 2px solid solid dotted solid white; */
+    border-width: 1px;
+    border-color: white;
+    border-top-style: solid;
+    border-bottom-style: solid;
+    /* bottom: 0; */
+    position: absolute;
+    /* display: flex; */
+    /* 水平居中 */
+    /* justify-content: center; */
+    /* 垂直居中 */
+    /* align-items: center; */
+}
+
+#input_1 select{
+    width: 100px;
+    height: 30px;
+    margin-left: 20px;
+    /* align-content: center; */
+}
+
+#sel_info{
+    margin: auto;
+    left:0;
+    top:30%;
+    right: 0;
+    width: 230px;
+    height: 100px;
+}
+
+#sel_info div{
+    margin:0 auto;
+    margin-top: 30px;
+    /* top:0;
+    bottom: 0; */
+    /* height: 30px; */
+}
+
+#but_1{
+    margin: auto;
+    left:0;
+    right: 0;
+    width: 250px;
+    height: 100px;
+}
+
+/* #input_1 button{
+    margin: auto;
+    left:0;
+    right: 0;
+    width: 250px;
+} */
+
+#label_sel{
+    margin-left: 20px;
+    margin: auto;
+    left:0;
+    right: 0;
+    width: 100px;
+    height: 30px;
+    font-weight: normal;
+
+}
+
+#body_title{
+    text-align: center;
+    margin: auto;
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top:10%;
+}
+
+#view_1{
+    float: right;
+    clear: both;
+    width: 88px;
+}
+
+

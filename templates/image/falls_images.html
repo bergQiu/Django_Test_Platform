@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}Images{% endblock %}
+{% block content %}
+<div class="container">
+    <link rel="stylesheet" href="{% static 'css/mp_mansory_style.css' %}" type="text/css">
+    <div id='my-gallery-container'>
+        {% for image in images %}
+        <div    class="falls_item h200" data-order = "{{ image.id }}">
+            <!-- <a href="javascript:" class="image-info" onmousemove="mouseOver('{{image.user}}','{{image.title}}','{{image.image.url}}','{{image.description}}','{{request.get_host}}')"> -->
+            <a href="javascript:" class="image-info">
+                <img src="{{ image.image.url }}" onclick="displayImage('{{ image.image.url }}')">
+            </a>
+            <p>{{ image.title }}({{image.user}})</p>
+            <!-- <p>User: {{ image.user }}</p> -->
+
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<script src="{% static 'js/jquery.js' %}"></script>
+<script src="{% static 'js/layer.js' %}"></script>
+<script src="{% static 'js/mp.mansory.min.js' %}"></script>
+<script type="text/javascript">
+    // function mouseOver(user,title,url,description,host){
+    //     // alert(user)
+    //     layer.tips("User: "+user+"\nTitle: "+title,$(this),{
+    //         tips:[1,'#eee'],
+    //         time:4000
+    //     })
+    // }
+
+    function displayImage(url){ 
+        layer.photos({
+            // title:title,
+            photos:{"data":[{"src":url}]},
+        })
+
+        // layer.open({
+        //     type:1,
+        //     title:title,
+        //     skin:'layui-layer-rim',
+        //     closeBtn:0,
+        //     // area:"516px",
+        //     shadeClose:true,
+        //     // area:["800px","800px"],
+        //     full:true,
+        //     content:"<div class='text-center'><img src='http://" + host + url  + "'><p>發佈者："+ user +"</p>"+"</div>"+
+        //             "<div style='margin-left:10px'>"+ description +"</div>",
+        //     // content:$(this)
+        // })
+    }
+
+    $(document).ready(function(){
+
+        $("#my-gallery-container").mpmansory({
+            chiidrenClass:'falls_item',
+            columnClasses:'falls_padding',
+            breakpoints:{
+                lg:3,
+                md:4,
+                sm:6,
+                xs:12
+            },
+            distributeBy:{
+                order:false,
+                height:false,
+                attr:'data-order',
+                attrOrder:'desc'
+            }
+        })
+    })
+</script>
+{% endblock %}

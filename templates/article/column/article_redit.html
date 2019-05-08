@@ -1,0 +1,91 @@
+{% extends "article/base.html" %}
+{% load staticfiles %}
+{% block title %}article column{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'editor/css/style.css' %}">
+<link rel="stylesheet" href="{% static 'editor/css/editormd.css' %}">
+<div class="container_">
+    <!-- {% include "article/leftslider.html" %} -->
+    <div class="col-de-10">
+        <div style="margin-left:10px">
+            <form action="." class="form-horizontal" method="post">
+                    {% csrf_token %}
+                    <div class="row" style="margin-top:10px">
+                        <div class="col-md-2 text-right"><span>標題：</span></div>
+                        <div id="e1" class="col-md-10 text-left">{{ this_article_form.title }}</div>
+                    </div>
+                    <div class="row" style="margin-top:10px">
+                        <div class="col-md-2 text-right"><span>欄目：</span></div>
+                        <div class="col-md-10 text-left">
+                            <select  id="which_column">
+                                {% for column in article_columns %}
+                                <p>{{ column }}</p>
+                                <!-- <option value="222">{{ column.column }}</option> -->
+                                    {% if column == this_article_column %}
+                                        <option value="{{ column.id }}" selected="selected">{{ column.column }}</option>
+                                    {% else %}
+                                        <option value="{{ column.id}}">{{ column.column }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px">
+                        <div class="col-md-2 text-right"><span>內容：</span></div>
+                        <div class="col-md-10 text-left" style="margin-left:15px" id="editormd">
+                            <!-- {{ article_post.form.body }} -->
+                            <textarea style="display:none" id="id_body">
+                                {{ article.body }}
+                            </textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <input type="button" style="float:right" class="btn btn-primary btn-lg" id="change" value="更改">
+                    </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="{%  static 'js/jquery.js' %}"></script>
+<script type="text/javascript" src="{%  static 'editor/editormd.min.js' %}"></script>
+<script type="text/javascript" src="{%  static 'js/layer.js' %}"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+
+        var editor = editormd("editormd",{
+            width:"81%",
+            height:640,
+            // syncScrolling:"single",
+            path:"{% static 'editor/lib/' %}"
+        })
+
+        $("#change").click(function(){
+            var title = $("#e1").find("input").val()
+            var column_id = $("#which_column").val()
+            var body = $("#id_body").text()
+
+            $.ajax({
+                type:"POST",
+                url:"{% url 'article:article_redit' article.id %}",
+                data:{
+                    "title":title,
+                    "column_id":column_id,
+                    "body":body
+                },
+                success:function(e){
+                    if(e == "1"){
+                        layer.msg("更新文章成功,1s後跳轉到文章列表",{time:1000},function(){
+                            window.location.href = "{% url 'article:article_list' %}"
+                            // window.location.href = "{{ article.get_absolute_url}}"
+                        })
+                    }
+                },
+                error:function(e){
+                    layer.msg("更新失敗",{time:1000})
+                }
+            })
+            // alert(body)
+        })
+    })
+</script>
+{% endblock %}

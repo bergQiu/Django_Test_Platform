@@ -1,0 +1,43 @@
+{%  load staticfiles %}
+<!DOCTYPE>
+<!-- <html> -->
+    <head>
+        <title>My test for a</title>
+        <script src="{% static 'js/jquery.js'%}"></script>
+        <script src="{% static 'js/bootstrap.js' %}"></script>
+        <meta charset="utf-8">
+        <meta name='viewport' content="width=device-width,initial-scalle=1">
+        <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    </head>
+    <div>
+        <!-- <h1>hello world</h1> -->
+        <nav class="navbar navbar-default" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">A-sys</a>
+                </div>
+                <div>
+                    <ul class="nav navbar-nav">
+                        <li><a href="#">test1</a></li>
+                        <li><a href="#">test2</a></li>
+                        <li><a href="{% url 'mytest:ht_select' %}" title="Warehouse temperature and humidity query entrance">倉庫溫濕度</a></li>
+                        <li class="dropdown">
+                            <a href="#"  data-toggle= "dropdown">KEPserver<span class="caret"></span></a>
+                            <!-- <a href="{% url 'mytest:keps_time' %}" title="Set KEPServer time">KEPserver</a></li> -->
+                            <ul class="dropdown-menu">
+                                <li><a href="{% url 'mytest:keps_time'%}" title="Set KEPServer time">Old page</a></li>
+                                <li><a href="{% url 'mytest:new_keps_time'%}" title="Set KEPServer time">New page</a></li>
+                            </ul>
+                        <li>
+                        <li><a href="{% url 'mytest:pressure' %}" title = "Pressure">Pressure</a></li>
+                        <li><a href="{% url 'mytest:test' %}" title="Test for html">Test</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+<!-- </html> -->

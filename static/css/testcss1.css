@@ -1,0 +1,95 @@
+#testid{
+    position:absolute;
+    width:200px;
+    height:100px;
+    /* top:500px; */
+    left:50px;
+    border:1px solid black ;
+    background-color:rgb(255,247,153);
+    padding:20px;
+}
+/* #testid2{
+    font-family: sans-serif;
+    width:100px;
+    height:30px;
+    background-color: #FB5050;
+    border: none;
+    border-radius:  15px;
+    display: inline-block;
+    font-size: 20px;
+    outline: none;
+    color: rgba(255,255,255,1);
+    //font-variant: small-caps; 
+}*/
+#tableid1{
+    border: 1px solid black ;
+    width:600px ;
+    margin: 48px;
+    height: 150px;
+    text-align: center;
+}
+tr:nth-child(2n){
+    background-color:rgb(251, 136, 88)
+}     
+tr:nth-child(2n+3){
+    background-color:rgb(202, 244, 95)
+}  
+td button{
+    width:70px;
+    background-color: #C58B8B;
+    border: 1px solid #E11919;
+    border-radius:  15px;
+}
+#testid2 {
+	/* position: relative; */
+    color: rgba(255,255,255,1);
+    text-decoration: none;
+    background-color: rgba(219,87,5,1);
+    font-family: 'Yanone Kaffeesatz';
+    /* font-weight: 700px; */
+    font-size: 3em;
+    display: block;
+    padding: 4px;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+    border: none;  
+    outline: none;
+    -webkit-box-shadow: 0px 9px 0px rgba(219,31,5,1), 0px 9px 25px rgba(0,0,0,.7);
+    -moz-box-shadow: 0px 9px 0px rgba(219,31,5,1), 0px 9px 25px rgba(0,0,0,.7);
+    box-shadow: 0px 0px 0px rgb(245, 42, 2), 0px 9px 25px rgba(0,0,0,.7);
+    /* box-shadow: none; */
+    margin: 5px auto;
+	width: 150px;
+	text-align: center;
+	
+	-webkit-transition: all .1s ease;
+	-moz-transition: all .1s ease;
+	-ms-transition: all .1s ease;
+	-o-transition: all .1s ease;
+	transition: all .1s ease;
+}
+#testid2:active {
+    -webkit-box-shadow: 0px 3px 0px rgba(219,31,5,1), 0px 3px 6px rgba(0,0,0,.9);
+    -moz-box-shadow: 0px 3px 0px rgba(219,31,5,1), 0px 3px 6px rgba(0,0,0,.9);
+    box-shadow: 0px 3px 0px rgba(219,31,5,1), 0px 3px 6px rgba(0,0,0,.9);
+    position: relative;
+    top: 6px;
+}	
+#divid1{
+    position: relative;
+    left:50px;
+}
+#tableid2{
+    position: relative;
+    /* position:absolute; */
+    left: 50px;
+    width:400px ;
+}
+#divid2{
+    position: relative;
+    left:50px;
+}
+#tableid2 td{
+    width: 100px;
+}

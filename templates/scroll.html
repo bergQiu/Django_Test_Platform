@@ -1,0 +1,79 @@
+{% load staticfiles %}
+<div  id="scroll_div" style="width:50px;height:50px;line-height:50px;position:fixed;right:100px;bottom:60px;text-align:center;display:none">
+    <!-- <a href="javascript:;"  id="scroll_btn" title="回到頂部">Top</a> -->
+    <span class="glyphicon glyphicon-menu-up" id="scroll_btn" style="font-size:50px;color:#ddd" title="回到頂部"></span>
+</div>
+<script type="text/javascript">
+    window.onload = function(){
+    // $(document).ready(function(){
+        // alert("hello world")
+        // var btn = document.getElementById("scroll_btn");
+        var btn = $("#scroll_btn")
+        var s = $("#scroll_div")
+        // btn.hover(function(){
+        //         btn.stop(!0).animate({
+        //             // color:"#999"
+        //             right:"100px"
+        //         })
+        //     },function(){
+        //         btn.stop(!0).animate({
+        //             // color:"#999"
+        //             right:"60px"
+        //         }) 
+        // })
+        btn.mouseover(function(){
+            btn.css("color","#999")
+        })
+        btn.mouseout(function(){
+            btn.css("color","#aaa")
+        })
+        // var clientHeight = document.documentElement.clientHeight; 
+        var clientHeight = $(window).height()
+        var timer = null;   //定义一个定时器
+        var isTop = true;   //定义一个布尔值，用于判断是否到达顶部
+        // window.onscroll = function(){
+        $(window).scroll(function(){
+            //获取滚动条的滚动高度
+            //var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            var scrollTop_ = $(window).scrollTop() || $(body).scrollTop()
+            //如果滚动高度大于可视区域高度，则显示回到顶部按钮否则隐藏
+            // btn.style.display = scrollTop_ >= clientHeight ?  "block" : "none";
+            // $("#scroll_div").css("display",function(){
+            //     return scrollTop_ >= clientHeight -30 ? "block" : "none";
+            // })
+            // $("#scrool_div").fadeIn("slow")
+            
+            scrollTop_ >= clientHeight -100 ? s.fadeIn("slow") : s.fadeOut("slow")  ;
+            // btn.css("background","#eee")
+            // btn.style.background = "#eee"
+            // btn.style.display = black
+            //判断当点击回到顶部按钮后滚动条在回滚过程中，若手动滚动滚动条，则清除定时器
+            if(!isTop){
+                clearInterval(timer);
+            }
+            isTop = false;
+
+        })
+        //回到顶部按钮点击事件
+        // scroll_btn.onclick = function(){
+        $("#scroll_btn").click(function(){
+            timer = setInterval( function(){
+                //获取滚动条的滚动高度
+                // var scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                var scrollTop_ = $(window).scrollTop() || $(body).scrollTop()  
+                //用于设置速度差，产生缓动的效果,Math.floor向下取整
+                var speed = Math.floor(-scrollTop_ / 6);
+                // document.documentElement.scrollTop = document.body.scrollTop = scrollTop_ + speed;
+                $(window).scrollTop(scrollTop_ + speed) 
+                // $(body).scrollTop(scrollTop_ + speed) 
+                isTop =true;  //用于阻止滚动事件清除定时器
+                if(scrollTop == 0){
+                    clearInterval(timer);
+                }
+
+            },50 );
+            // $("body,html").animate({scrollTop:0},500)
+        })
+
+    }
+</script>

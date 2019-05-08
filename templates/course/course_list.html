@@ -1,0 +1,25 @@
+{% extends 'article/base.html' %}
+{% load staticfiles %}
+{% block title %} Course_list{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="col-md-10">
+        <table class="table table-hover">
+            <tr>
+                <td>序號</td>
+                <td>課程標題</td>
+                <td>講師</td>
+                <td>發佈日期</td>
+            </tr>
+            {% for course in courses %}
+            <tr id="{{ forloop.counter }}">
+                <td>{{ forloop.counter }}</td>
+                <td>{{ course.title }}</td>
+                <td>{{ course.user.username }}</td>
+                <td>{{ course.created }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>  
+</div>
+{% endblock %}

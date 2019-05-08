@@ -1,0 +1,180 @@
+{% load staticfiles %}
+<!DOCTYPE>
+<html>
+    <head>
+        <title>vote</title>
+        <script src="{% static 'js/jquery.js' %}"></script>
+        <script src="{% static 'js/jquery-ui.js'%}"></script>
+        <script type="text/javascript" src="{% static 'js/layer.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/echarts.min.js' %}"></script>
+        <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+        <script type="text/javascript">
+            $(document).ready(function(){
+                $("#sub").click(function(){
+                    var choice_ = $("input[name='choice']:checked").val();
+                    var name = $("#name").val();
+                    var password = $("#password").val()
+                    if(choice_ != undefined && name != "" && password != ""){
+                        // alert("t")
+                        $.ajax({
+                            url:"{% url 'mytest:vote' %}",
+                            type:"POST",
+                            data:{"type":"query","name":name,"password":password},
+                            success:function(data){
+                                if(data == "0"){
+                                        // alert("no");
+                                        layer.confirm(name + " ,請確認您的提交 " + choice_ ,{
+                                            btn:["提交","撤銷"],
+                                            btn1:function(){yy({"type":"insert","name":name,"password":password,"choice":choice_})}
+                                        })
+                                }
+                                else{
+                                        // alert("yes");
+                                        layer.confirm(name + " ,請確認是否覆蓋歷史 " + data + ",提交當前選擇" + choice_ + '?',{
+                                            btn:["提交","撤銷"],
+                                            yes:function(){yy({"type":"update","name":name,"password":password,"choice":choice_})}
+                                        })
+                                }
+                            },
+                            error:function(data){}
+                        })
+                        
+                        // alert("yes")
+                    }else{
+                        layer.msg('數據提交異常，請檢查後再提交！',{time:700}) ;              
+                        // alert("no")
+                    }
+                })
+
+                $("#eye").click(function(){
+                    var eye = $("#eye").children("span")
+                    if(eye.attr("class") == "glyphicon glyphicon-eye-close"){
+                        eye.attr("class","glyphicon glyphicon-eye-open");
+                        $("#password").attr("type","text");
+                    }else{
+                        eye.attr("class","glyphicon glyphicon-eye-close");
+                        $("#password").attr("type","password");
+                    }
+                })
+
+                $("#chart").click(function(){
+                    $.ajax({
+                        url:"{% url 'mytest:vote_chart' %}",
+                        type:"POST",
+                        data:{},
+                        success:function(data){
+                            show_view(data["chart"])
+                        },
+                        error:function(){},
+                        dataType:"JSON"
+                    })
+                })
+
+            })
+
+        function yy(data){
+            // alert("submit")
+            $.ajax({
+                url:"{% url 'mytest:vote' %}",
+                type:"POST",
+                data:data,
+                success:function(data){
+                    if (data == "0"){layer.msg("數據保存成功",{time:7000})};
+                    if (data == "1"){layer.msg("數據保存失敗",{time:7000})};
+                    // if (data == "0"){layer.msg("數據保存成功",{time:7000})}
+                },
+                error:function(data){}
+            })
+        }
+
+        function show_view(data){
+                var str = "<!DOCTYPE html>"
+                str += "<head></head><body>" + data + "</body></html>"
+                layer.open({
+                    title:"Result",
+                    // 寬，高
+                    area:["800px","500px"],
+                    type:1,
+                    shift:'Top',
+                    offset:"100px",
+                    content:str,
+                    end:function(){
+
+                    }
+                })
+            }
+        </script>
+    </head>
+    <body>
+        <!-- <h1>WELCOME TO VOTE PAGE!</h1> -->
+        <div class="container" style="margin:auto">
+            <div class="col-md-10" style="text-align:center">
+                <h1 style="text-align:center;margin-top:50px">WELCOME TO VOTE PAGE!</h1>
+                <p style="text-align:right;margin:50px 0px 10px 0px">by:Berg</p>
+                <button id="chart" class="btn btn-primary btn-md"  type="button" style="margin-bottom:10px;width:100px;float:right">Chart</button>
+                <hr style="clear:both">
+                <div style="text-align:left">
+                    <div>
+                        <input type="radio" name="choice" value="A">
+                        Plan A
+                        <br>
+                        <p style="margin-left:50px"> 
+                               廣東四大名山之一惠州羅浮山、東縱紀念館、哈斯塔特小鎮一天（預計費用￥210元/人）
+                            
+                        </p>
+                    </div>
+                    <div>
+                        <input type="radio" name="choice" value="B">
+                        Plan B
+                        <br>
+                        <p style="margin-left:50px"> 
+                               汕尾蓮花山龍鬚水溫泉、紅宮紅場、澎湃故居兩天遊（預計費用￥550元/人）
+                            
+                        </p>
+                    </div>
+                    <div>
+                        <input type="radio" name="choice" value="C">
+                        Plan C
+                        <br>
+                        <p style="margin-left:50px"> 
+                               河源桂山、玻璃寨橋、鏡花緣、恐龍博物館、客天下第二溫泉兩天經典遊玩（預計費用￥548元/人）
+                            
+                        </p>
+                    </div>
+                    <div>
+                        <input type="radio" name="choice" value="D">
+                        Plan D
+                        <br>
+                        <p style="margin-left:50px"> 
+                               吃飯加唱歌   
+                        </p>
+                    </div>
+                    
+                </div>
+                <hr>
+                <div style="margin:auto;width:250px">
+                    <form class="bs-example bs-example-form"  role="form">
+                        <div class="input-group">
+                            <span class="input-group-addon" >Name</span>
+                            <input type="text" id="name" class="form-control" placeholder="Your name ">
+                        </div>
+                        <br>
+                        <div class="input-group" style="width:250px">
+                            <span class="input-group-addon" >Password </span>
+                            <input type="password" id="password" class="form-control" placeholder="Password" style="width:129px">  
+                            <button type="button" id="eye" class="btn  btn-sm" style="height:34px">
+                                    <span class="glyphicon glyphicon-eye-close" style="float:right"></span>    
+                            </button>            
+                        </div>
+                        <br>
+                    </form>
+                    <button id="sub" class="btn btn-primary"  type="button">Submit</button>
+                </div>
+                <br>
+            <div style="text-align:center">
+                <p>時間飛逝，一眨眼間我們即將迎來國慶節，提前祝各位節日快樂！</p>
+            </div>
+            </div>           
+        </div>
+    </body>
+</html>

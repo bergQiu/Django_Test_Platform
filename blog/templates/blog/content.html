@@ -1,0 +1,22 @@
+<!-- 繼承基礎模板base.html -->
+{% extends "base.html" %}
+{%  block title %} hello {% endblock %}
+{% block content %}
+<div class="row text-centent vertical-middle-sm">
+    <h1>{{article.title}}</h1>
+</div>
+<div class="row">s
+    <div class="col-xs-12 col-md-8">
+        <p class="text-center"><span>{{article.author.username}}</span>
+        <span style="margin-left:20px">{{publish}}</span>
+        </p>
+        <div>{{article.body}}</div>
+    </div>
+    <div>
+        <div class="col-xs-6 cpl-md-4">
+            <h2>TEST</h2>
+            <p>you raise me up</p>
+        </div>
+    </div>
+</div>
+{%  endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %} Logout {% endblock %}
+{% block content %}
+    <div class="row text-center vertical-middle-sm">
+        <p>You are logout !</p>
+        <p>You can <a href="{% url 'account:user_login' %}">Login</a> again or <a href="{% url 'account:user_register' %}">Register</a></p>
+    </div>
+{% endblock %}

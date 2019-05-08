@@ -1,0 +1,39 @@
+{% load staticfiles %}
+<script src="{% static 'js/jquery.js'%}"></script>
+<script src="{% static 'js/bootstrap.js' %}"></script>
+<div class="container">
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="navbar-header">
+            <a href="" class="nvabar-brand"></a>
+        </div>
+        <div>   
+            <!-- <ul class="nav navbar-nav" role="tablist"> -->
+                <ul class="nav navbar-nav" role="navigation">
+                    <!-- <li><a href="{% url 'article:article_column' %}">文件管理</a></li>  -->
+                    <li><a href="#" style="color:#777">管理後臺</a></li>
+                    <!-- <li style="color:#777">管理後臺</li> -->
+                </ul>
+                <ul class="nav navbar-nav" style="margin-right:10px">
+                    <!-- <li><a href="{% url 'blog:blog_title' %}">網站首頁</a></li> -->
+                    <!-- <li style="margin-top:15px;color:#777"><span>{{ user.username }}</span></li> -->
+                    <li><a href="{% url 'home' %}">網站首頁</a></li>
+                    <li><a href="{% url 'article:list_article_titles' %}">文章</a></li>
+                    <li><a href="{% url 'image:falls_images' %}">美圖</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right" style="margin-right:10px">
+                    <li style="margin-top:1px">
+                            <div class="dropdown" style="margin-top:8px">
+                                <a href="#" class="btn btn-default dropdown-toggle " data-toggle="dropdown"   style="color:#777;Border:none;background-color:#f8f8f8">{{user.username}}<span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{% url 'account:password_change' %}">Change PW</a></li>
+                                    <li><a href="{% url 'account:myself' %}">Mself</a></li>
+                                    <li><a href="{% url 'article:article_column' %}">Backstage management</a></li>
+                                    <!-- <li><a href="{% url 'account:edit_myself_information' %}">Edit myself</a></li> -->
+                                </ul>
+                            </div>
+                        </li>
+                    <li><a href="{% url 'account:user_logout' %}">Logout</a></li>
+                </ul>
+        </div>
+    </nav>
+</div>

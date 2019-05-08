@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load article_tags %}
+{% block title %} articles {% endblock %}
+{% block content %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        $("#search_btn").click(function(){
+            var name = $("#search_val").val()
+            var re = /[.^,/?'";:!@#$%^&*()~`]/;
+            if(!re.test(name)){
+                $.ajax({
+                    url:"{% url 'article:article_filter' %}",
+                    type:"POST",
+                    data:{"username":name},
+                    success:function(data){
+                        // var data = JSON.parse(data)
+                        // var aticles = JSON.parse(data["articles"])
+                        // var page = JSON.parse(data["page"])
+                        // alert(page)
+                        alert("here")
+                        window.location.reload()
+                    },
+                    error:function(data){
+                        alert("i")
+                        alert(data)
+                    },
+                    // dataType:"JSON"
+                })
+            }else{
+                alert("包含非法字符！")
+            }
+        })
+    })
+</script>
+
+    <div class="row text-center vertical-middle-sm">
+        <h1>BlESSING TO MEET A BETTER SELF</h1>
+    </div>
+    <div style="margin-top:38px;height:5px">
+        <!-- <label for="" style="float">search</label> -->
+        <input type="button" name="" id="search_btn" class="btn btn-primary btn-sm" style="float:right;padding-bottom:1px" value="Search">
+        <input type="text" name="" id="search_val" style="float:right;width:150px;margin-right:1px;padding-left:10px" placeholder="username" value="test3">
+    </div>
+    <div class="row text-right vertical-middle-sm" style="clear:both;margin-right:10px;padding-top:5px">
+        <!-- <h4>書中自有黃金屋，書中自有顏如玉</h4> -->
+        <p>本站點共計{% total_articles %} 篇文章</p>
+    </div>
+    <hr>
+        <!-- <div class="col-md-6 text-left" style="float:right;width:250px">123</div> -->
+    <div class="container_" style="margin-top:20px;clear:both">
+        {% for article in articles %}
+        <div class="list-group" style="background-color:#eeeeee;padding:10px 10px 10px 10px;border-radius:5px">
+            <!-- <a href="{{ article.get_url_path }}" class="list-group-itm active"> -->
+                <h4 class="list-group-item-heading"><a href="{{ article.get_url_path }}">{{ article.title }}</a></h4>
+                <p class="list-group-item-text">作者: <a href="{% url 'article:author_articles' article.author.username %}">{{ article.author.username }}</a></p>
+                <p class="list-group-item-text">概要 :{{ article.body　| slice:'20' | linebreaks}}</p>
+            <!-- </a> -->
+        </div>
+        {% endfor %}
+        {% include "paginator.html" %}
+    </div>
+{% endblock %}

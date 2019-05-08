@@ -1,0 +1,141 @@
+{% extends "article/base.html" %}
+{% load staticfiles %}
+{% block title %}article_list{% endblock %}
+{% block content %}
+<!-- <div> -->
+<div style="margin-left:60px">
+    <table id="list_table" class="table table-hover">
+        <tr>
+            <!-- <td></td> -->
+            <td>序號</td>
+            <td>標題</td>
+            <td>欄位</td>
+            <td>操作</td>
+
+        </tr>
+        {% for article in articles %}
+        <tr id="{{ article.id }}" style="height:40px">
+                <!-- <td><input type="checkbox" class="batch_check" name="praiseALL"></td> -->
+                <td>{{ forloop.counter }}</td>
+                <td><a href="{{ article.get_absolute_url }}">{{ article.title }}</a></td>
+                <td>{{ article.column }}</td>
+                <td id="hide_id" style="display:none">{{ article.id}}</td>
+                <td>
+                    <a href="{% url 'article:article_redit' article.id %}" name = "edit" class="edit_btn"><span class="glyphicon glyphicon-pencil" ></span></a>
+                    <a href="javascript:;" name = "delete" class="del_btn"><span class="glyphicon glyphicon-trash" style="margin-left:10px" ></span></a>
+                </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% include "paginator.html" %}
+    <div>
+        <button id="batch" class="btn btn-primary btn-sm" style="float:right">批量操作</button>
+        <a href="javascript:;" style="float:right;margin-right:10px;margin-top:10px" name = "delete" id="batch_del"><span class="glyphicon glyphicon-trash" style="margin-left:10px" ></span></a>
+        <!-- <button id="batch" class="btn btn-primary btn-sm" style="float:right">批量操作</button> -->
+    </div>
+</div>
+<script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/layer.js' %}"></script>
+<script type="text/javascript">
+    // $("#hide_id").hide()
+    // $("#batch_del").hide()
+   
+    $(document).ready(function(){
+        var batch_en = true;
+        // $("#batch_del").attr('disabled',true);
+        $("#batch_del").hide()
+        // alert("p")
+
+
+        $(".del_btn").click(function(){
+            var id = $(this).closest("tr").children("td").eq(3).text()
+            var name = $(this).closest("tr").children("td").eq(1).text()
+
+            layer.open({
+                type:1,
+                skin:"layui-layer-rim",
+                area:["400px","200px"],
+                title:"刪除文章",
+                content:"<div class='text-center' style='margin-top:20px'><p>是否確定刪除《" + name + "》</p></div>",
+                btn:['確定','取消'],
+                yes:function(){
+                    $.ajax({
+                        url:"{% url 'article:article_del' %}",
+                        type:"POST",
+                        data:{"article_id":id},
+                        success:function(e){
+                            if(e == "1"){
+                                layer.msg("Has been deleted,refresh after 1 second",{time:1000},function(){
+                                    parent.location.reload() 
+                                })        
+                            }else{
+                                layer.msg("Failed to delete",{time:1000})
+                            }
+                        }
+                    })
+                }
+            })
+        })
+        // $("#batch").click(function(){
+        $("#batch").bind("click",{"en":batch_en},function(event){    //事件觸發傳入參數
+            var num = $("#list_table tr").size() 
+            // alert("1")
+            // alert(event.data.en)
+            if(event.data.en == true ){
+                $("#batch_del").show()
+                
+                for(var i = 1 ;i < num ;i++){
+                    $("#list_table").find("tr").eq(i).find("td:first").html("<input type='checkbox' style='margin-top:0px' class='batch_check' name='praiseALL'>")
+                }
+            event.data.en = false
+            return 
+            }
+            else if(event.data.en == false ){
+                $("#batch_del").hide()
+                for(var i = 1 ;i < num ;i++){
+                    $("#list_table").find("tr").eq(i).find("td:first").html(i)
+                }
+            event.data.en = true
+            return 
+            }
+            
+        })
+        $("#batch_del").click(function(){
+            var n = $(".batch_check").size()
+            var id_arr = []
+            for(var j = 0 ;j < n ; j++){
+                if($(".batch_check")[j].checked){
+                    id_arr.push($("#list_table").find("tr").eq(j+1).children("td").eq(3).text().toString())
+                }
+            }
+            var arr = ["1","2"]
+            layer.open({
+                type:1,
+                skin:"layui-layer-rim",
+                area:["400px","200px"],
+                title:"批量刪除",
+                content:"<div class='text-center' style='margin-top:20px'><p>是否確定批量刪除？</p></div>",
+                btn:['確定','取消'],
+                yes:function(){
+                    $.ajax({
+                        url:"{% url 'article:article_del' %}",
+                        type:"POST",
+                        traditional:true,
+                        data:{"article_id":id_arr},
+                        dataType:"json",
+                        success:function(e){
+                            if(e == "1"){
+                                layer.msg("Has been deleted,refresh after 1 second",{time:1000},function(){
+                                    parent.location.reload() 
+                                })        
+                            }else{
+                                layer.msg("Failed to delete",{time:1000})
+                            }
+                        }
+                    })
+                }
+            })
+        })
+    })
+</script>
+{% endblock %}

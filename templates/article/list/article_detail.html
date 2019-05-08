@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+{% load article_tags %}
+{% load staticfiles%}
+{% block titlt %}
+article list
+{% endblock %}
+{% block content %}
+{% with total_likes=article.users_like.count  users_like=article.users_like.all %}
+<link rel="stylesheet" href="{% static 'editor/css/editormd.preview.css' %}">
+<script src="{% static 'js/jquery.js' %}"></script>
+<script src="{% static 'js/layer.js' %}"></script>
+<script src="{% static 'editor/lib/marked.min.js' %}"></script>
+<script src="{% static 'editor/lib/prettify.min.js' %}"></script>
+<script src="{% static 'editor/lib/raphael.min.js' %}"></script>
+<script src="{% static 'editor/lib/undersocre.min.js' %}"></script>
+<script src="{% static 'editor/lib/sequence-diagram.min.js' %}"></script>
+<script src="{% static 'editor/lib/flowchart.min.js' %}"></script>
+<script src="{% static 'editor/lib/jquery.flowchart.min.js' %}"></script>
+<script src="{% static 'editor/editormd.js' %}"></script>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        // $(".time").hide()
+
+        $(".del_comment").click(function(){
+            var commentator = $(this).closest("div").children("p:eq(0)").children("strong").text()
+            var body = $(this).closest("div").children("p:eq(1)").text()
+            var date = $(this).closest("div").children("p:eq(3)").text()
+            var comment_id = $("#comment_id").text()
+            // alert(comment_id)
+            $.ajax({
+                url:"{% url 'article:article_del_comment' %}",
+                type:"POST",
+                data:{"comment_id":comment_id},
+                success:function(data){
+                    if(data == "0"){
+                        layer.msg("成功刪除評論！")
+                    }else{
+                        layer.msg("評論刪除失敗！")
+                    }
+                    location.reload()
+                },
+                error:function(e){}
+
+            })
+            // alert(typeof(date))
+        })
+
+
+        var like_user = []
+        "{% for u in article.users_like.all %}"
+        like_user.push("{{u.username}}") 
+        "{% endfor %}"
+        like_str = like_user.join('、')
+        // alert(like_str)
+
+        // $("#like_user").hide()
+
+        editormd.markdownToHTML('editormd-view',{
+            htmlDecode:"style,script,ifram",
+            emoji:true,
+            tasklist:true,
+            tex:true,
+            flowChart:true,
+            sequenceDiagram:true
+        })
+
+    $("#a").on({
+        mouseover:function(){
+            // $("#like_user").show()
+            layer.tips("<span style='color:black'>" + like_str + "</span>","#a",{tips:[3,'#fff']})
+        },
+        mouseout:function(){
+            // $("#like_user").hide()
+        }
+    })
+
+    $("#submit_comment").click(function(){
+        var commentator = $("#commentator").val()
+        var body = $("#comment_body").val()
+        
+        if(commentator != "" && body != "" )
+        {
+                $.ajax({
+                url:".",
+                type:"POST",
+                data:{"commentator":commentator,"body":body},
+                success:function(data){
+                    // layer.msg("nice")
+                    // return false
+                    location.reload()
+                },
+                error:function(e){}
+            })
+        }
+        else{
+            $("#comment_form").attr("target","rfFrame")
+        }
+    })
+    })
+
+    function like_article(id,action){
+        $.ajax({
+            url:"{% url 'article:like_article' %}",
+            type:"POST",
+            data:{"id":id,"action":action},
+            success:function(d){
+                window.location.reload()
+            },
+            error:function(e){
+                layer.msg("ERROR",{time:500},function(){
+                    window.location.reload()
+                })   
+            },
+            dataType:"JSON"
+        })
+    }
+
+</script>
+<div class="container">
+<div class="col-md-9">
+    <h1>{{ article.title }}     
+        <!-- <a href="{% url 'article:article_redit' article.id %}" name = "edit" class="edit_btn"><span style="font-size:15px" class="glyphicon glyphicon-pencil" ></span></a> -->
+    </h1>
+    <p>
+        <a href="{% url 'article:author_articles' article.author.username %}">{{ user.username }}</a>
+        <span style="margin-left:20px" class="glyphicon glyphicon-thumbs-up">  {{total_likes}} like{{total_likes|pluralize}}</span>
+    </p>
+    <div id=editormd-view>
+        <!-- {{ article.body }} -->
+        <textarea id="append-text" style="display:none">{{ article.body }}</textarea>
+    </div>
+    <div style="height:20px">
+        <a onclick="like_article('{{ article.id }}','dislike')" href="#"><span class="glyphicon glyphicon-thumbs-down" style="font-size:15px;float:right;margin-right:20px"></span></a>
+        <a onclick="like_article('{{ article.id }}','like')" href="#"><span class="glyphicon glyphicon-thumbs-up" style="font-size:15px;float:right;margin-right:20px"></span></a>
+    </div>
+    <br>
+    <div style="float:right;margin-right:20px;margin-bottom:10px">
+        <p class="text-right" id="a" >點贊本文的讀者</p>
+        <!-- <div id="like_user">
+            {% for user in article.users_like.all %}
+            <p class="text-center">{{ user.username }}</p>
+            {% empty %}
+            <p class="text-center">還沒有人對此文章表態</p>
+            {% endfor %}
+        </div> -->
+    </div>
+    <hr style="clear:both">
+    <div>
+        <h4><span class="glyphicon glyphicon-bullhorn"></span> 本文有{{ article.comments.count }}評論</h4>
+        {% for comment in article.comments.all %}
+        <div style="background:#eee;clear:both;height:80px">
+            <p><strong>{{ comment.commentator }}</strong> 說：</p>
+            <p class="b" style="margin-left:40px">
+                {{ comment.body }}
+                <p class="del_comment"><span  class="glyphicon glyphicon-trash" style="float:right;margin-right:10px"></span></p>
+                <p class="time" style="width:130px;float:right"><span style="margin-right:10px;opacity:0.7">{{ comment.created | date:"y-m-d H:i:s" }}</span></p>
+                <!-- <span style="float:right;margin-right:10px;opacity:0.5">{{ comment.created | timesince }}</span> -->
+                <p id="comment_id" style="display:none">{{comment.id }}</p>
+            </p>
+            
+        </div>   
+        {% empty %}
+        <p style="margin-left:20px">沒有評論!</p>
+        {% endfor %}
+        <hr style="clear:both">
+        <form class="form-horizontal" role="form" id="comment_form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="inputEmail3" class="col-md-2 control-label">評論員:</label>
+                <div class="col-md-10 text-lef" >
+                    <!-- {{ comment_form.commentator }} -->
+                    <input type="text" id="commentator">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputEmail3" class="col-md-2 control-label">評論:</label>
+                <div  class="col-md-10 text-lef">
+                    <!-- {{ comment_form.body }} -->
+                    <textarea name="commentator" id="comment_body" cols="30" rows="10"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset col-md-12">
+                    <p><button class="btn btn-primary btn-sm" id="submit_comment"  style="float:right" >submit</button></p>
+                </div>
+            </div>
+            <iframe src="about:blank" id="rfFrame" name="rfFrame" frameborder="0" style="display:none"></iframe>
+        </form>
+    </div>
+</div>
+<div class="col-md-3" style="margin-top:100px">
+    <p class="text-center"><h4>最新发布的文章</h4></p>
+    {% laster_articles 4 %}
+</div>
+</div>
+{% endwith %}
+{% endblock %}

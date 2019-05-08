@@ -1,0 +1,235 @@
+{% extends 'mytest/a.html' %}
+{% load staticfiles %}
+{% block content %}
+<head>
+    <script src="{% static 'js/jquery.js' %}"></script>
+    <script src="{% static 'js/jquery-ui.js'%}"></script>
+    <script type="text/javascript" src="{% static 'js/echarts.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/layer.js' %}"></script>      
+    <script type="text/javascript" src="{% static 'js/laydate/laydate.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <script type="text/javascript">
+
+        $(document).on('click','#myTags li',function(){
+                $(this).hide()
+        })
+        
+        
+
+        $(document).ready(function(){
+
+            var today = new Date()
+            var t_d = today.getDate()<10?"0"+today.getDate():today.getDate()
+            var t_min = today.getMinutes()<10?"0"+today.getMinutes():today.getMinutes()
+            var t_m = today.getMonth() + 1<10?"0"+(today.getMonth()+1):today.getMonth() + 1
+            var yesterday = new Date(today.setDate(today.getDate()-1))
+            var y_min = yesterday.getMinutes()<10?"0"+yesterday.getMinutes():yesterday.getMinutes()
+            var y_m = yesterday.getMonth() + 1<10?"0"+(yesterday.getMonth()+1):yesterday.getMonth() + 1
+            var y_d = yesterday.getDate()<10?"0"+yesterday.getDate():yesterday.getDate()
+            
+            var Start = yesterday.getFullYear()+"-"+y_m+"-"+y_d+" "+yesterday.getHours()+":"+y_min+":"+yesterday.getSeconds()
+            var End = today.getFullYear()+"-"+t_m+"-"+t_d+" "+today.getHours()+":"+t_min+":"+today.getSeconds()
+         
+            $("#start_time").attr('value',Start)
+            $("#end_time").attr('value',End)
+            
+            laydate.render({
+                            elem:"input",
+                            // trigger:"click",
+                            type:"datetime"
+                        })
+
+            // $(".time").click(function(){
+            //     laydate.render({
+            //                 elem:this,
+            //                 trigger:"click",
+            //                 type:"datetime"
+            //             })
+            // })
+            // $("#submit").click(function(){
+            //     var d = {"B":0,"C":1,"E":0}
+
+            //     $.ajax({
+            //         url:"{% url 'mytest:pressure' %}",
+            //         type:"POST",
+            //         data:d,
+            //         success:function(data){
+            //             d = JSON.parse(data)
+            //             show_view(d['context'])
+            //             // show_view("context")
+            //             // alert(d['context'])
+            //             // alert(d['data'])
+            //             // for(var d in d['data']){
+            //             //     alert(d)
+            //             // }
+            //         },
+            //         error:function(e){},
+            //         // dataType:"JSON"
+            //     })
+            // })
+
+            $("#waSele").change(function(){
+                $.ajax({
+                    url:"{% url 'mytest:pressure_get_info' %}",
+                    type:"POST",
+                    data:{"type":"GET_BUI","data":$("#waSele").val()},
+                    success:function(data){
+                        var d = JSON.parse(data)
+                        var option_str = "<option  value='' selected='selected'>請選擇棟別</option>"
+                        for (var i in d['result']){
+                            option_str += "<option value='"+i+"'>"+d['result'][i]['bui_name']+"</option>"
+                        }
+                        $("#buiSele").html(option_str)
+                        $("#lineSele").html("<option  value='' selected='selected'>請選擇產線</option>")
+                    },
+                    error:function(data){}
+
+                })  
+            })
+
+            $("#buiSele").change(function(){
+                $.ajax({
+                    url:"{% url 'mytest:pressure_get_info' %}",
+                    type:"POST",
+                    data:{"type":"GET_LINE","wa":$("#waSele").val(),"bui":$("#buiSele").val()},
+                    success:function(data){
+                        var d = JSON.parse(data)
+                        var option_str = "<option  value='' selected='selected'>請選擇產線</option>"
+                        for (var i in d['result']){
+                            if (i != "bui_name"){
+                                option_str += "<option value='"+i+"'>"+d['result'][i]+"</option>"
+                            }
+                        }
+                        $("#lineSele").html(option_str)
+                    },
+                    error:function(data){}
+
+                })  
+            })
+
+            $("#add").click(function(){
+                var query = []
+                $("#myTags li").each(function(){
+                    query.push($(this).attr('value'))
+                })
+
+                if($("#waSele").val() != "" & $("#buiSele").val() != "" & $("#lineSele").val() != ""){
+                    var val = [],tag = []
+                    $(".input-group select").each(function(){
+                        if($(this).val()!=""){
+                            tag.push($(this).find("option:selected").text())
+                            val.push($(this).val())
+                        }
+                    })
+                    var val_ =val.join(' --- ')
+                    if(query.indexOf(val_) != -1 )
+                    {layer.msg("操作不合法，請選擇！",{time:600})}
+                    else{
+                    var content = "<ul><li class='tags' title='點擊取消' value='" + val_ + "'>" + tag.join(" --- ") + "</li></ul>"
+                    $("#myTags").append(content)}
+                }else{
+                    layer.msg("操作不合法，請選擇！",{time:600})
+                }
+            })
+
+            $("#submit").click(function(){
+                var query = []
+                $("#myTags li").each(function(){
+                    // query.push({"val":$(this).attr('value'),
+                    //             "name":$(this).text()})
+                    query.push($(this).attr('value'))
+                })
+                var start =new Date($("#start_time").val())
+                var end = new Date($("#end_time").val())
+                $.ajax({
+                    url:"{% url 'mytest:pressure' %}",
+                    type:"POST",
+                    data:{"query":query,"start":start,"end":end},
+                    success:function(data){
+
+                        d = JSON.parse(data)
+                        show_view(d['context'])
+                        // show_view("context")
+                        // alert(d['context'])
+                        // alert(d['data'])
+                        // for(var d in d['data']){
+                            // alert("d")
+                        // }
+                    },
+                    error:function(e){},
+                    // dataType:"JSON"
+                })
+            })
+
+        // ########################
+        })
+
+        function show_view(data){
+            var str = "<!DOCTYPE html>"
+            str += "<head><style type='text/css'>axisLabel:{interval:60,rotate:40}</style></head><body>" + data + "</body></html>"
+            layer.open({
+                title:"Test for view",
+                // 寬，高
+                area:["900px","500px"],
+                type:1,
+                shift:'Top',
+                offset:"100px",
+                content:str,
+                end:function(){
+
+                }
+            })
+        }
+    </script>
+</head>
+<body>
+        <div style="margin:100px 0px 10px 0px;text-align:center">
+            <p><h3>WORKSHOP PRESSURE</h3></p>
+            <hr>
+            <div class="col-md-9">
+                <div class="row" style="text-align:left">
+                    <div class="input-group" style="margin:10px 15px" id="select">
+                        <span class="input-group-addon" style="width:100px" >產線選擇</span>
+                        <select  id="waSele" class="form-control" style="width:200px">
+                            <!-- <option value="請選擇廠區">請選擇廠區</option> -->
+                            <option  value="" selected="selected">請選擇廠區</option>
+                            
+                            {% for WA in result %}
+                            {% if WA == 'WL' %}
+                            <option value="{{ WA }}">{{ WA }}</option>
+                            {% else %}
+                            <option value="{{ WA }}">{{ WA }}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                        <select  id="buiSele" class="form-control" style="width:200px">
+                            <option value="">請選擇棟別</option>
+                            <!-- {% for MID in result.WL %}
+                            <option >{{ config. }}</option>
+                            {% endfor %} -->
+                        </select>
+                        <select  id="lineSele" class="form-control" style="width:200px">
+                            <option value="">請選擇產線</option>
+
+                        </select>
+                        <span><button class="btn btn-primary btn-md" style="width:100px;border-top-left-radius:0;border-bottom-left-radius:0" id="add">Add</button></span>
+
+                    </div>
+                </div>  
+                <!-- <div class="row">
+                        <div class="col-md-1 text-right"><span>Start：</span></div>
+                        <div class="col-md-4 text-left"><input type=""></div>
+                </div> -->
+                <div class="row" style="text-align:left">
+                        <div class="input-group" style="margin:10px 15px" id="select">
+                            <!-- <span class="input-group-addon" style="width:100px" >時間選擇</span> -->
+                            <span>Start：<input class="time" type="text" id="start_time" value=""></span>
+                            <span>  End：<input class="time" type="text" id="end_time" value=""></span>
+                        </div>
+                    </div>  
+                <div  class="" style="border:2px solid #eee;min-height:120px;width:800px;right:auto;text-align:left" id="myTags"></div>
+                <p><button class="btn btn-primary btn-md" id="submit" style="float:right;margin:20px 20px">Submit</button></p>
+        </div>
+    </div>
+</body>
+{% endblock %}

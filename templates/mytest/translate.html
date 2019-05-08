@@ -1,0 +1,357 @@
+{% load staticfiles %}
+<!DOCTYPE>
+<html>
+    <head>
+        <title>translate</title>
+        <script src="{% static 'js/jquery.js' %}"></script>
+        <script src="{% static 'js/jquery-ui.js'%}"></script>
+        <script src="{% static 'js/bootstrap-switch.js'%}"></script>
+        <script type="text/javascript" src="{% static 'js/layer.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/echarts.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/echarts-wordcloud.min.js' %}"></script>
+        <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+        <link rel="stylesheet" href="{% static 'css/bootstrap-switch.css' %}">
+        <style>
+            .p_{
+                position:absolute;
+                left:10px;               
+            }
+            #hour,#day,#minute,#second      {
+                font-size:30
+            }
+        </style>
+        <script type="text/javascript">
+            //綁定頁面初始化時還未定義的標籤
+            $(document).on("click","#char_k",function(){
+                $(this).text() == "漢字"?$(this).text("英文"):$(this).text("漢字");
+                change_cloud(cloud_k);
+            })
+            $(document).on("click","#cloud_k_group button",function(){
+                // $("#cloud_k_group").children().removeAttr("checked");
+                // $(this).attr("checked");
+                cloud_k = $(this).text();
+                change_cloud(cloud_k);
+            })
+
+            //綁定頁面初始化就已經定義的標籤
+            $(document).ready(function(){
+                var img = "";
+                var cloud_k = "";
+                $("#lovetree").hide();
+                $("#lunbo").hide();
+                $("input[name='my-checkbox']").bootstrapSwitch();
+                $("#gackground_group button").attr("disabled",true)
+                $("input[name='my-checkbox']").on("switchChange.bootstrapSwitch",function(event,state){
+                    if(!state){
+                        $("#gackground_group button").attr("disabled",true);
+                        img = "";
+                        background_change("none","black");
+                    }else{
+                        $("#gackground_group button").attr("disabled",false)
+                        background_change(img == "" ? "{% static 'img/mountain.jpg' %}":img,"black");
+                    }
+                })
+
+                get_time();
+                setInterval("get_time()",1000);
+
+                $("#test").on("change",function(){
+                    alert("yes");
+                })
+
+                $("#status").click(function(){
+                    var s = $(this).text();
+                    if(s == "顯示"){
+                        $(this).text("隱藏");
+                        $("#lovetree").show(time=500);
+                        $("#lunbo").show(time=500);
+                    }else{
+                        $(this).text("顯示");
+                        $("#lovetree").hide(time=500);
+                        $("#lunbo").hide(time=500);
+                    }
+                })
+
+                $("#next").click(function(){
+                    var content = $("#motto").text();
+                    $.ajax({
+                        url:"#",
+                        type:"POST",
+                        data:{"type":"story","to":"next","text":content},
+                        success:function(data){
+                            $("#motto").text(data['result']);
+                        },
+                        error:function(data){},
+                        dataType:"JSON"
+                    })
+                })
+
+                $("#last").click(function(){
+                    var content = $("#motto").text();
+                    $.ajax({
+                        url:"#",
+                        type:"POST",
+                        data:{"type":"story","to":"last","text":content},
+                        success:function(data){
+                            $("#motto").text(data['result']);
+                        },
+                        error:function(data){},
+                        dataType:"JSON"
+                    })
+                })
+
+                $("#gackground_group button").click(function(){
+                    var img_name = $(this).text();
+                    if(img != img_name){
+                        img=img_name;
+                        // background_change
+                        switch(img){
+                            case "snails":background_change("{% static 'img/snails.jpg' %}","white");break;
+                            case "mountain":background_change("{% static 'img/mountain.jpg' %}","black");break;
+                            case "lake":background_change("{% static 'img/lake.jpg' %}","#cccccc");break;
+                            default :"";
+                        }
+                    }
+                    // alert(img_name);
+                })
+
+                $("#char_group button").click(function(){
+                    var type = $(this).text();
+                    char(type)
+                })
+
+                $("#tran").click(function(){
+                    var text = $("#in").val()
+                    if(text != ""){
+                        var index = loading("数据交換中，请稍等！");
+                        $.ajax({                       
+                            url:"#",
+                            type:"POST",
+                            data:{"type":"translate","text":text},
+                            success:function(data){
+                                // alert("y")
+                                // alert(data)
+                                layer.close(index);
+                                $("#out").text(del_result(data['result']))
+                            },
+                            error:function(data){layer.close(index);alert("Request failed")},
+                            dataType:"JSON"
+                        })
+                    }else{
+                        $("#out").text("")
+                    }               
+                })
+
+                $("#chat").click(function(){
+
+                    // alert("hello")
+                    var html_str=""
+                    layer.open({
+                        type:2,
+                        title:'Chat display interface',
+                        maxmin:true,
+                        data:22,
+                        shadeClose:true,
+                        area:['800px','520px'],
+                        content:'chat'
+                        // content:
+                    })
+                })
+            })
+            function del_result(data){
+                var str = ""
+                // ==undefined?"":data[0][1][3]
+                var s = (data[0][1][3]==undefined)?"":data[0][1][3] 
+                str += "音标: " + s  + "\n"
+                str += "翻译: " + data[0][0][0] + "\n"
+                str += "其他： \n" + a(data)
+                // alert(str)
+                return str
+            }
+            function a(data){
+                var str = ""
+                var data= data[1]
+                for(var d in data){
+                    var val = data[d]
+                    str += "    " +val[0] + ":\n"
+                    str += "        " +val[1] +"\n"
+                    var str_ = ""
+                    for(var c in val[2]){
+                        var n = ""
+                        for(var i=0;i< new Number(val[2][c][3]*10);i++){  n+="*" }
+                        str_ += "        " +val[2][c][0]   + "   "+ val[2][c][1] + "    "+ n + "\n"
+                    }
+                    str += str_
+                }
+                return str
+            }
+            function change_cloud(t){
+                var k = $("#char_k").text();
+                // var t = $("#cloud_k_group[checked]").text();
+                // alert(k);
+                // alert(t);
+                $.ajax({
+                    url:"{% url 'mytest:translate_char' %}",
+                    type:"POST",
+                    data:{"type":"Cloud","k":k,"t":t},
+                    success:function(d){
+                            // alert(d["context"]);
+                            $("#show_char").html(d["context"]);
+                    },
+                    // alert(d["context"])
+                    error:function(){},
+                    dataType:"JSON"
+                })
+            }
+
+            function get_time(){
+                var time = new Date(new Date() - new Date("2018/08/19 19:30:00")).getTime();
+                var day = Math.floor(time/(24*3600*1000));
+                var l1 = time%(24*3600*1000);
+                var hour = Math.floor(l1/(3600*1000));
+                var l2 = l1%(3600*1000);
+                var minute = Math.floor(l2/(60*1000));
+                var second = parseInt(l2%(60*1000)/1000);
+
+                $("#day").text(day);
+                $("#hour").text(hour);
+                $("#minute").text(minute);
+                $("#second").text(second);
+            }
+            //加载层
+            function loading(msg){
+                var index = layer.msg(msg, {
+                            icon:16,
+                            shade:[0.1, '#fff'],
+                            time:false  //取消自动关闭
+                        })
+                return index;
+            }
+
+            function background_change(img,font_color){
+                $("body").css("background-image","url("+ img +")" );
+                $("p").css("color",font_color)
+            }
+
+            function char(type){
+                var h =  "<div  style='margin-top:4px'>　　統計類型：<button id='char_k' class='btn btn-primary btn-xs'  type='button'>漢字</button></div>" +
+                        '<p style="float:left;margin-top:5px">　　雲圖類型：<div  id="cloud_k_group" style="margin:3px 0px 0px 0px" class="btn-group-xs">' +
+                       '<button class="btn btn-primary" type="button">circle</button>　' +
+                       ' <button class="btn btn-primary" type="button">chardioid</button>　' +
+                       ' <button class="btn btn-primary" type="button">diamond</button>　' +
+                       ' <button class="btn btn-primary" type="button">triangle-forward</button>　' +
+                       ' <button class="btn btn-primary" type="button">triangle</button>　' +
+                       ' <button class="btn btn-primary" type="button">pentagon</button>　' +
+                       '<button class="btn btn-primary" type="button">star</button></div></p>　'
+                
+                $.ajax({
+                    url:"{% url 'mytest:translate_char' %}",
+                    type:"POST",
+                    data:{"type":type},
+                    success:function(d){
+                        // alert(d["context"])
+                        layer.open({
+                            title:"Translation chart",
+                            area:["900px","600px"],
+                            type:1,
+                            shitft:"Top",
+                            offset:"100px",
+                            content: type == "Line" ?d["context"]:(h+ "<div id='show_char'>" +   d["context"] + "</div>"),
+                            // "<div id='show'>" +   d["context"] + "</div>"
+                            end:function(){}
+                        })
+                    },
+                    error:function(err){},
+                    dataType:"JSON"
+                })
+            }
+        </script>
+    </head>
+    <body>
+        <div class="container" style="margin:auto">
+            <div  class="col-md-12" style="text-align:center">
+                <h1>Translate</h1>
+                <p style="text-align:right;margin:50px 0px 10px 0px">The result from google</p>  
+                <div  id="gackground_group" style="float:right;margin:10px 0px 10px 10px" class="btn-group-xs">
+                        <button class="btn btn-primary" type="button" checked>mountain</button>
+                        <button class="btn btn-primary" type="button">snails</button>
+                        <button class="btn btn-primary" type="button">lake</button>
+                </div>
+                <div class="bootstrap-switch bootstrap-switch-Small" style="float:right;margin:5px 5px">
+                    <input id="test" type="checkbox" name="my-checkbox" data-on-color="primary" data-off-color="default">
+                </div>
+                <p style="float:right;margin-top:10px">Whether to display the background ?</p>
+                {% if context_show %}
+                <div  id="char_group" style="float:right;margin:10px 0px 10px 0px;clear:both" class="btn-group-xs">
+                    <button class="btn btn-primary" type="button">Line</button>
+                    <button class="btn btn-primary" type="button">Cloud</button>
+                    <!-- <button class="btn btn-primary" type="button">lake</button> -->
+                </div>
+                <p style="float:right;margin-top:10px">Historical word frequency statistics　</p>
+                {% endif %}
+                <div  style="clear:both;float:right">
+                    <button id='chat' class="btn btn-primary btn-xs" type="button" style="width:100px;margin:10 0 10 0" >Chat</button>
+                </div>
+                <hr style="clear:both">
+            </div>
+            <div class="col-md-12" style="height:70px">                
+                <button id="tran" class="btn btn-primary btn-md"  type="button" style="width:100px;float:right">Translate</button>
+                <div style="margin:10px 0px 10px 10px;clear:both"><p>翻译　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　结果</p></div>
+            </div>
+            <div class="col-md-6">
+                <textarea name="" id="in" cols="60" rows="10" placeholder="请输入翻译单词"></textarea>
+            </div>
+            <div class="col-md-6">
+                    <textarea name="" id="out" cols="60" rows="10" placeholder=""></textarea>
+            </div>
+            <br>
+            <div class="col-md-12" style="margin-top:20px">
+                <p style="color:#E0E0E0">...... 點擊此處選擇<span id="status" style="color:#BEBEBE">顯示</span>時間</p>
+            </div>
+            <div id="lovetree" class="col-md-6">
+                <div style="position:relative;background:#FFE3EE;width:454px;height:304px;margin-top:10px">
+                    <img src="{% static 'img/tree.jpg'%}" style='width:450px;height:300px;margin:2px 2px 2px 2px'>
+
+                    <!-- tree -->
+                    <p id="p1" class="p_" style="top:150px"><span id="name" style='color:#930000'>{{ cathy }}</span>我喜歡你已經是......</p>
+                    <p id="p2" class="p_" style="top:175px">　　第<span id="day"></span>天<span id="hour"></span>小時<span id="minute"></span>分鐘<span id="second"></span>秒</p>
+                    <!-- heart -->
+                    <!-- <p id="p1" class="p_" style="top:25px;left:20px;color:#AE0000"><span id="name" style='color:#AE0000'>{{ cathy }}</span>我喜歡你已經是......</p>
+                    <p id="p2" class="p_" style="top:40px;left:192px;color:#AE0000">　　第<span id="day"></span>天<span id="hour"></span>小時<span id="minute"></span>分鐘<span id="second"></span>秒</p> -->
+                    
+                    <!-- <span style="position:absolute;left:10px;top:10px;z-index:2"></span> -->
+                </div>
+            </div>
+            <div id="lunbo" class="col-md-5">
+                <div>
+                    <!-- <hr> -->
+                    <marquee behavior="scroll" direction="up" height="300px" scrollamount="2" onmousemove=this.stop() onmouseout=this.start()>
+                        {% for l in love %}
+                        <p>{{ l }}</p>
+                        {% endfor %}
+                        <!-- <p>　　請原諒我的不善言辭，但請相信我會用行動證明。</p>    　
+                        <p>
+                                　　佛家說：“無論你遇到誰，她都是對的人，無論發生什麼事，那都是唯一會發生的事兒，不管事情開始的那個時刻，都是對的時刻”。就像我喜歡你，
+                                曾經的你和現在的你還有未來的你，不管是在未知的天之涯，海之角，我希望将来老到掉牙的那一天，陪我牵手看夕阳的看云舒云卷的还是你。    
+                        </p>　　
+                         <p >　　對了，我想起來那句話了，下次告訴你！</p>                                                                             -->
+                    </marquee>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="container" style="position:fixed ! important;bottom:0px;left:0;right:0;z-index:auto"> -->
+                <!-- navbar-fixed-bottom  導航固定底部 -->
+        {% if context_show %}
+        <div class="container-fluid" style="position:fixed ! important;bottom:0px;left:0;right:0;z-index:auto">
+                <div>
+                    <hr>
+                    <span id='next' class="glyphicon glyphicon-arrow-right" style="color:#ccc;float:right"></span>   
+                    <div style="width:97%;float:right"><p id="motto" style="text-align:center">{{motto}}</p>                      
+                        <!-- <div style="width:97%;height:20%;bottom:3px"><p id="motto" style="text-align:center">{{motto}}</p>  -->
+                    </div>
+                    <span id='last' class="glyphicon glyphicon-arrow-left" style="color:#ccc"></span>                                    
+                </div>
+            </div>
+        {% endif %}
+    </body>
+</html>

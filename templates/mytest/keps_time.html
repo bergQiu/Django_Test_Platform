@@ -1,0 +1,320 @@
+{% extends "mytest/a.html" %}
+{% load staticfiles %}
+{% block content %}
+<!-- <!DOCTYPE html>
+<html> -->
+    <head>
+        <title>Kepserver_time</title>
+        <meta name='viewport' content="width=device-width,initial-scalle=1">
+        <script src="{% static 'js/jquery.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/layer.js' %}"></script>
+        <link rel="stylesheet"  type= "text/css" href="{% static 'css/bootstrap.css' %}"> 
+        <style type="text/css">
+            #table_1{
+                font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
+                border: 2px solid #98BF21;
+                /* border-collapse:collapse;  */
+                /* 默認值邊框會被分開 ，collapse 邊框合成一個邊框*/
+                border-collapse: separate;
+                /* text-align:center;   */
+                font-size:20px;
+
+                width: 50%;
+                margin-top:60px;
+                left: 0;
+                /* top:30%; */
+                right: 0;
+                margin: auto;
+                /* position: absolute;  */
+
+                /* border-radius: 5px; */
+                overflow:hidden;
+                border-top-left-radius:1em;
+                border-top-right-radius:1em;
+                border-bottom-right-radius:1em;
+                border-bottom-left-radius:1em;
+                /* float: left; */
+                
+
+            }
+            #table_1 th{
+                padding: 5px,5px,5px,5px;
+                text-align: center;
+                background-color: #A7C942;
+                border: 1px solid ;
+                /* margin-left: 50px;
+                margin-right: 50px; */
+                width: 200px;
+            }
+            #table_1 td{
+                padding: 5px,5px,5px,5px;
+                text-align: center;
+                border: 1px solid #98BF21;
+                width: 200px;
+            }
+
+            tr.focus{
+                background-color:#A7C942;
+            }
+
+            #mod_layer{
+                font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
+                border: 1px solid #98BF21;
+                border-collapse:collapse; 
+                /* 默認值邊框會被分開 ，collapse 邊框合成一個邊框*/
+                /* border-collapse: separate; */
+                width: 50%;
+                text-align:center;  
+                font-size:20px;
+                margin-top:50px;
+                margin-left: 20px;
+            }
+            #mod_layer input{
+                width: 80px;
+                border: 0;
+
+            }
+
+            #mod_layer th,td{
+                border: 1px solid ;
+            }
+
+            #mod_submit{
+                margin: auto;
+                font-size: 20px;
+                width: 250px;
+                left: 0;
+                margin-top:60px;
+                /* top:30%; */
+                right: 0;
+                /* bottom: 0; */
+                position: absolute;
+                
+            }
+            #body_title{
+                text-align:center;
+                margin:100px auto auto auto
+            }
+            #sel_all{
+                height: 35px;
+                width: 150px;
+                font-size: 15px;
+                margin-left: 62%;
+                margin-top: 60px;
+            }
+            #table_sel{
+                margin-top: 50px;    
+                overflow: auto;
+                height: 100%;
+                max-height: 100%;
+            }
+            #mod_one{
+                height: 35px;
+                width: 100px;
+                font-size: 15px;
+                margin-left: 5px;
+                margin-top: 30px;
+            }
+            #add_one{
+                height: 35px;
+                width: 100px;
+                font-size: 15px;
+                margin-left: 64%;
+                margin-top: 30px;
+                float: left;
+            }
+            #rules{
+                margin-top:50px;
+                margin-left: 40%;
+            }
+        </style>
+        <script type="text/javascript">
+            $(document).on("click","#mod_submit",function(){           
+                var modify_data = []
+                $("#mod_layer").find("input").each(function(){
+                    modify_data.push($(this).val())
+                })
+                var send_en = false
+                // alert(modify_data[2].substring(3,))
+                modify_data[2] = modify_data[2].substring(0,2) + modify_data[2].substring(3,)
+                modify_data[1] = modify_data[1].substring(0,2) + modify_data[1].substring(3,)
+                if(parseInt(modify_data[1].substring(0,2)) < 25 && parseInt(modify_data[2].substring(0,2)) < 25 ){
+                    if(parseInt(modify_data[1].substring(2,)) < 61 && parseInt(modify_data[2].substring(2,)) < 61){
+                        if(parseInt(modify_data[1]) < parseInt(modify_data[2])){
+                            send_en = true
+                            for (var i = 3;i<11;i++){
+                                        d = modify_data[i] 
+                                        if (d == "True" || d == "true" ||　d == "false" || d == "False" ||　d == ""){
+                                                if(d == "false" || d == "False"){
+                                                    modify_data[i] = ""
+                                                }
+                                                continue
+                                                // send_en = true 
+                                        }else{
+                                            send_en = false
+                                            break
+                                    }
+                                }
+                            }
+                        }
+                    }
+                // alert("yyy")
+                // alert(send_en)
+                if (send_en){
+                        $.ajax({
+                                    type:"POST",
+                                    url:"{% url 'mytest:keps_time_find_modify' %}",
+                                    data:{"data":modify_data},
+                                    dataType:"JSON",
+                                    success:function(data){
+                                        if(data == '1'){
+                                            alert("Modify data successfully");
+                                            parent.location.reload();
+                                        }else{
+                                            layer.alert("Failed to modify data")
+                                        }
+                                    },
+                                    error:function(){
+                                        alert("Operation failed")
+                                    }
+                                })
+                }else{
+                    layer.alert("输入数据不合法，请重新输入！")
+                }
+            })
+            $(document).ready(function(){
+
+                $("#sel_all").click(function(){
+                    $.ajax({
+                        type:"GET",
+                        url:"{% url 'mytest:keps_time_find_modify' %}",
+                        data:"",
+                        dataType:"JSON",
+                        success:function(data){
+                                // alert("successful");
+                                // alert(table_str(data.result))
+                                if (data.result.length != 0 ){
+                                    $("#table_sel").html(table_str(data.result))
+                                }
+                        },
+                        error:function(){
+                                alert("failed")
+                        }
+                    })
+                })
+
+                $("#table_sel").delegate("#table_1 tr:gt(1)","click",function(){
+                    $(this).parent().find("tr.focus").toggleClass("focus");
+                    $(this).toggleClass("focus");
+                })
+                
+                $("#table_sel").delegate("#mod_one","click",function(){
+                    // $("#mod_one").click(function(){ 
+                    var data_arr = []
+                    $("#table_1").find("tr.focus td").each(function(){
+                        data_arr.push($(this).html())
+                    })
+                    // alert(data_arr)
+
+
+                    if ( data_arr.length == 0){
+                        layer.alert("未選擇數據！")
+                    }
+                    else{
+                        // alert(mod_layer(data_arr))
+                        layer.open({
+                            title:"Modify Data",
+                            area:["935px","300px"],
+                            type:1,
+                            shift:"top",
+                            offset:"100px",
+                            content:mod_layer(data_arr),
+                        // end:,
+                    })
+                    }
+                })
+
+                $("#table_sel").delegate("#add_one","click",function(){
+                    // alert("666")
+                    // alert($("#table_1").find("tr").length)
+                    var data_add = [($("#table_1").find("tr").length - 1).toFixed(1),"","","","","","","","","",""]
+                    layer.open({
+                        title:"Add Data",
+                        area:["935px","300px"],
+                        type:1,
+                        shift:"top",
+                        offset:"100px",
+                        content:mod_layer(data_add)
+                    })
+                })
+                // llllllllllllll
+            })
+
+            function table_str(data){             
+                var base_str = "<table id='table_1'>"                     
+                var th_base_str_1 = "<tr><th rowspan ='2'>Num</th><th colspan = '2'>Time</th><th colspan = '7'>Week</th><th rowspan = '2'>Status</th></tr>"
+                var th_base_str_2 = "<tr><th>Start</th><th>End</th><th>Mon</th><th>Tues</th><th>Wed</th><th>Thur</th><th>Fri</th><th>Sat</th><th>Sun</th></tr>"
+                var td_base = ""    
+                var data = data.slice(0).sort(function(a,b){
+                    return a["Num"] - b["Num"]
+                })
+                for (var i = 0 ;i < data.length ; i++){
+                    var start_time_str = data[i]["Start"].substring(0,2) + ":" + data[i]["Start"].substring(2,)
+                    var end_time_str = data[i]["End"].substring(0,2) + ":" + data[i]["End"].substring(2,)
+                    str= "<tr><td>" + data[i]["Num"]+ "</td><td>" + start_time_str + "</td><td>"  + end_time_str + "</td><td>" 
+                    + data[i]["Week"]["Mon"] + "</td><td>" + data[i]["Week"]["Tues"] + "</td><td>"  + data[i]["Week"]["Wed"] + "</td><td>" 
+                    + data[i]["Week"]["Thur"] + "</td><td>" + data[i]["Week"]["Fri"] + "</td><td>" + data[i]["Week"]["Sat"] + "</td><td>" +  data[i]["Week"]["Sun"] + "</td><td>" +  data[i]["Enable"] +"</td></tr>" 
+                    td_base += str
+                }
+                var foot_str  = "<br><button id='add_one'>新增</button><button id='mod_one'>修改</button>"
+                // alert(base_str + th_base_str_1 + th_base_str_2 + td_base +  "</table>")
+                return base_str + th_base_str_1 + th_base_str_2 + td_base +  "</table>" + foot_str
+            }
+
+            function mod_layer(data){
+                var base_js = "<html><head><script type='text/javascript'>#mod_submit.click(function(){alert('yes')})<//script><head>" 
+                var base = "<body><table id='mod_layer'>"
+                var base_th = "<tr><th>Num</th><th>Start</th><th>End</th><th>Mon</th><th>Tues</th><th>Wed</th><th>Thur</th><th>Fri</th><th>Sat</th><th>Sun</th><th>Status</th></tr>"
+                var td = "<tr><td><input type = 'text' readonly = 'true' value = '" + data[0] +"'></td>"
+                var buton_str = "<button id='mod_submit'>提交</button>"
+                for (var i= 1;i<data.length;i++){
+                    td += "<td><input type= 'text' value='" + data[i] + "'></td>" 
+                }
+                return base + base_th + td +"</tr></table><tr>" +  buton_str + "</body></html>"
+            }
+        </script>
+    </head>
+    <body>
+        <div id="body_title"><h1>KEPServer 時間控制</h1></div>
+        <div id="rules">
+            <ul type='circle'>
+                <li>時間格式：XX:XX</li><br>
+                <li>使能輸入為false、False、true、True、空</li>
+                <!-- <li></li> -->
+            </ul>
+        </div>
+        <div id="_">
+            <button id="sel_all">查詢現有所有任務</button><br>
+            
+        </div>
+        <div id="table_sel">
+            
+        </div>
+        <div id="control_sel"></div>
+        <div>
+            <!-- <h1>hello</h1> -->
+            <!-- <table id='mod_layer'><tr><th>Num</th><th>Start</th><th>End</th><th>Mon</th><th>Tues</th><th>Wed</th><th>Thur</th><th>Fri</th><th>Sat</th><th>Sun</th><th>Status</th></tr><tr><td><input type= 'text' value='2.0'></td><td><input type= 'text' value='01:00'></td><td><input type= 'text' value='19:30'></td><td><input type= 'text' value='true'></td><td><input type= 'text' value='true'></td><td><input type= 'text' value='true'></td><td><input type= 'text' value=''></td><td><input type= 'text' value='true'></td><td><input type= 'text' value='true'></td><td><input type= 'text' value=''></td><td><input type= 'text' value='true'></td></tr></table> -->
+           
+        </div>  
+        <div>
+              <!-- yyy:  <input type="text" value="55"> -->
+        </div>
+        <!-- <input　type="text" value="19:30" name ="77">  -->
+        <!-- <div id="mod_div">
+                <button id = 'mod_submit'>提交</button>
+        </div> -->
+        
+        <!-- <div><h1>hello world</h1></div>        -->
+    </body>
+<!-- </html> -->
+{% endblock %}

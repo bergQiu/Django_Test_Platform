@@ -1,0 +1,295 @@
+{% extends "mytest/a.html" %}
+<!-- <!DOCTYPE html> -->
+{% load staticfiles %}
+{% block content %}
+<!-- <html> -->
+    <head>
+        <title>Humi_Temp_Select</title>    
+        <meta name='viewport' content="width=device-width,initial-scalle=1">
+        <script src="{% static 'js/jquery.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/layer.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/echarts.min.js' %}"></script>
+        <link rel="stylesheet"  type= "text/css" href="{% static 'css/mytest-htsel.css' %}">
+        <link rel="stylesheet"  type= "text/css" href="{% static 'css/bootstrap.css' %}"> 
+        <style type="text/css">
+        body{
+                background-image: url("{% static 'img/star.jpg' %}");
+                background-color: #b3b3b3;
+                background-size:100% 100%;  
+                background-repeat: no-repeat;
+                background-attachment: fixed
+            }
+            </style>
+        <script type="text/javascript">
+        $(document).on("click",".table_1",function(){
+            // alert($(this).find("th").text())
+            $.ajax({
+                        type:"POST",
+                        url:"{% url 'mytest:ht_view' %}",
+                        data:{"query":$(this).find("th").text()},
+                        success:function(data){
+                            // alert(show_view(data))
+                            show_view(data["context"])
+                        },
+                        error:function(){
+                            layer.alert("提交數據失敗")
+                        },
+                        dataType:"JSON"
+
+                    })
+            // layer.open({
+            //         title:"hello",
+            //         area:["860px","570px"],
+            //         type:1,
+            //         shift:'top',
+            //         offset:'100px',
+            //         content:$(this).find("tr:first").val(),
+            //         end:function(){
+            //             // clearInterval(time1)
+            //         }
+            // })
+        })
+        
+
+        $(document).ready(function(){
+                $('#sel_1').click(
+                    function(){
+                        // alert($("#WA_sel").val()),
+                        // alert(parseInt($("#Bui_sel").val()))
+                        // alert()
+                        // alert($("#Bui_sel").val().substring(0,$("#Bui_sel").val().length -1))
+
+                        $.ajax({                            
+                            type:"POST",
+                            url:"{% url 'mytest:ht_select' %}",
+                            data:{  "WA":$("#WA_sel").val(),
+                                    // "Building":parseInt($("#Bui_sel").val())
+                                    "Building":$("#Bui_sel").val().substring(0,$("#Bui_sel").val().length -1)
+                                    },   
+                            success:function(data){   
+                                // alert("Y") 
+                                // alert(data.result[0]["Location"].substring(data.result[0]["Location"].length-2,))                           
+                                if (data.result.length != 0 ){
+                                    var time1 = setInterval(
+                                        function(){
+                                            $.ajax({
+                                            type:"POST",
+                                            url:"{% url 'mytest:ht_select' %}",
+                                            data:{  "WA":$("#WA_sel").val(),
+                                                    "Building":parseInt($("#Bui_sel").val()) },
+                                            success:function(data){
+                                                    // alert(data.result[0]["HumiRef"])
+                                                    title_str_ ="　TempRef:　" + data.result[0]["TempRef"] + "　℃　　HumiRef:　" + data.result[0]["HumiRef"] +"　%RH"
+                                                    $("#layer_p_2").html(title_str_)
+                                                    $("#layer_div_1").html(drawtable(data.result) )
+                                                },
+                                            error:function(data){
+                                                alert("get data failure")
+                                            },
+                                            dataType:"JSON"
+                                        })
+                                        }
+                                    ,300000
+                                ) 
+
+                                title_str ="　TempRef:　" + data.result[0]["TempRef"] + "　℃　　HumiRef:　" + data.result[0]["HumiRef"] +"　%RH"    
+                                layer.open({
+                                    title:$("#WA_sel").val()+"　"+$("#Bui_sel").val(),
+                                    area:["860px","570px"],
+                                    type:1,
+                                    shift:'top',
+                                    offset:'100px',
+                                    content:"<br><div><div id='layer_div_1' >" + drawtable(data.result) + "</div><br/><div style='clear:both'><p>　</p><hr><p>　Data from MongoDB</p><p id='layer_p_2'>" + title_str + "</p></div></div>",
+                                    end:function(){
+                                        clearInterval(time1)
+                                    }
+                                })
+                            }
+                                else {
+                                    layer.alert("抱歉，未找到對應樓層數據！")
+                                }
+                              
+                            },
+                            error:function(data){
+                                alert("N")
+                            },
+                            dataType:"JSON"
+                        })
+                    }
+                )
+
+                // $("#view_1").click(function(){
+                //     // layer.alert("视图界面！")
+                //     $.ajax({
+                //         type:"POST",
+                //         url:"{% url 'mytest:ht_view' %}",
+                //         data:{  "WA":$("#WA_sel").val(),
+                //                 "Building":parseInt($("#Bui_sel").val()) },
+                //         success:function(data){
+                //             layer.alert(data)
+                //         },
+                //         error:function(){
+                //             layer.alert("提交數據失敗")
+                //         },
+                //         dataType:"JSON"
+
+                //     })
+
+                // })
+
+                $("#WA_sel").change(
+                function(){
+                    $.ajax({
+                        type:"GET",
+                        url:"{% url 'mytest:ht_select' %}",
+                        data:{"WA":$("#WA_sel").val()},
+                        success:function(data){
+                            // alert(data["Bui_arr"])
+                            var str = ""
+                            for (var d in data["Bui_arr"]){
+                                str += "<option>" + data["Bui_arr"][d] +"棟</option>"
+                                // alert(data["Bui_arr"][d])
+                            }
+                            $("#Bui_sel").html(str)
+                        },
+                        error:function(data){
+                            layer.alert("獲取數據失敗")
+                        },
+                        dataType:"JSON"
+                    })
+
+                    // $("#Bui_sel option").remove();
+                    // val = ["B棟","綜合樓"];
+                    // for (var i=0;i<val.length;i++){
+                    //     $("#Bui_sel").append("<option>"+val[i]+"</option>")
+                    // }
+                // }   
+                // if(WA == "比安達"){
+                //     $("#Bui_sel option").remove();
+                //     val = ["A棟","B棟"];
+                //     for (var i=0;i<val.length;i++){
+                //         $("#Bui_sel").append("<option>"+val[i]+"</option>")
+                //     }
+                // }
+                // if(WA == "永成"){
+                //     $("#Bui_sel option").remove();
+                //     val = ["3棟","4棟","5棟","6棟","7棟","8棟","9棟","14棟","15棟","16棟","17棟","19棟"];
+                //     for (var i=0;i<val.length;i++){
+                //         $("#Bui_sel").append("<option>"+val[i]+"</option>")
+                //     }
+                // }
+            }) 
+
+            $("#sel_clc").click(function(){
+                clearInterval(time1)
+            })   
+
+            $("#sel_modify").click(function(){
+            })      
+
+            })
+
+            // $("#test").click(function(){
+            //     alert()
+            // })
+            function getStr(data){
+                if(data["Status"]["HumiRefFlag"]==1){
+                    var style_str = "style = 'color:red'"
+                }else{
+                    var style_str = ""
+                }
+                // + "_" + data['Floor']
+                var localtionStr = data['WA'] + "_" + data['Building']  + "_" + data['Repo']  + "_" + data["Location"].substring(data["Location"].length-2,)
+                var base_header = "<table class='table_1'>"
+                var th_base_str = "<tr ><th colspan='2'>" + localtionStr + "</th></tr>"
+                var td_base_str = "<tr><td>溫度</td><td>"+data['Temp'].toFixed(1)+"　　　℃</td></tr><tr><td>濕度</td><td " + style_str + " >" + data['Humi'].toFixed(1)+"　　　%RH</td></tr>"
+                var base_footer = "</table>"
+                var all_str = base_header + th_base_str + td_base_str + base_footer
+                // alert(all_str)
+                return all_str
+            }
+            function drawtable(data){    
+                str_ = "";
+                for (var i=0;i < data.length;i++){
+                        str_ += getStr(data[i]);
+                }
+                // $(".panel-body").html(str_)
+                 return str_
+            }
+
+            function show_view(data){
+                var str = "<!DOCTYPE html>"
+                str += "<head></head><body>" + data + "</body></html>"
+                layer.open({
+                    title:"Test for view",
+                    // 寬，高
+                    area:["800px","500px"],
+                    type:1,
+                    shift:'Top',
+                    offset:"100px",
+                    content:str,
+                    end:function(){
+
+                    }
+                })
+            }
+            
+            
+         </script>
+         
+    </head>
+    <body>
+        <div id="body_title"><h1 style="color:azure">倉庫溫濕度查詢入口</h1></div>
+        <div id="input_1">
+            <div id="sel_info" >
+                <div>
+                        <label for="WA" id="label_sel" style="color:azure">廠區選擇  </label>
+                        <select class="form_sel" id="WA_sel" >
+                            {% for WA in WA_arr %}
+                            {% if WA == "永成" %}
+                            <option selected>{{ WA }}</option>
+                            {% else %}
+                            <option>{{ WA }}</option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                </div>
+                <!-- <label class="col-md-5 text-left">nice</label> -->
+            <div>
+                        <label for="Building" id="label_sel" style="color:azure">棟別選擇  </label>
+                        <select class="form_sel" id="Bui_sel" >
+                            <!-- <option selected>3棟</option> -->
+                            {% for b in Bui_arr%}
+                            <option>{{ b }}棟</option>
+                            {%  endfor %}
+                        </select>
+            </div>     
+            </div>
+            <div id="but_1"><button id="sel_1" name="select" >Select</button></div>
+            <!-- <div id="but_2"><button id="view_1" name="data_view" >View</button></div> -->
+        </div>
+        <div>
+            <!-- <br><div id='layer_div_1' style='position:relative'>" + drawtable(data.result) + "</div><br/><div  style='position:absolute;left:20px;bottom:20px'><p>　</p><hr><p>　Data from MongoDB</p><p id='layer_p_2'>" + title_str + "</p></div > -->
+        </div>
+        <!-- <h1>test1</h1>
+        <h1>HELLO WORLD!</h1>
+        <div>
+                <table class="table_1" border="1px">
+                        <tr >
+                            <th colspan="2"  style="text-align:center;background-color: #2784AC" >Month</th>
+                            <th>Savings</th> 
+                        </tr>
+                        <tr>
+                            <td colspan='2'>January</td>
+                            <td>$100</td>
+                        </tr>
+                </table>
+                <div><button id="sel_clc" >test</button></div>
+                <div id="test_"></div>-->
+        <!-- <div><button id="sel_modify" >test_1</button></div>  -->
+        <!-- <div id="666"></div> -->
+        <div id="lo"></div>   
+        <!-- <button id = "test">test</button> -->
+    </body>
+<!-- </html> -->
+{% endblock %}

@@ -1,0 +1,52 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang = "zh-cn">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <meta charset = "utf-8">
+        <meta name="viewport" content="width=device-width,initial-scalle=1"><!-- 確保適當的縮放，以適應移動設備 -->
+        <title>{% block title %}{%  endblock %}</title>
+        <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+        <script src="{% static 'js/jquery.js' %}"></script>
+        <!-- <link rel="stylesheet" href="http://necolas.github.io/normalize.css">
+        <link rel="stylesheet" href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css"> -->
+    </head>
+    <body style="padding-bottom:80px">
+        {%  include "header.html" %}
+        <div class="container">
+            {%  block content %}
+            {%  endblock %}
+        </div>
+        {% include 'scroll.html' %}
+        {% include "footer.html" %}
+        {% block javascritp %}
+        {% endblock %}
+        <!-- <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+        <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script> -->
+    </body>
+</html>
+ <!-- <div class="row">
+                    <div style="text-align:left">
+            
+            <div class="input-group" style="margin:10px 15px">
+                    <span class="input-group-addon" style="width: 100px">多擇點位:</span>
+                    <select class="form-control" id="sltArea" style="width:130px">
+                        <option  value="" selected="selected">請選擇廠區</option>
+                        <option  value="永成">永成</option>
+                        <option  value="比安達">比安達</option>
+                        <option  value="KSD">KSD</option>
+                        <option value="明門一廠">明門一廠</option>
+                        <option value="明門二廠">明門二廠</option>
+                        <option value="寶鉅">寶鉅</option>                    
+                    </select> 
+                    <select class="form-control" id="sltDB" style="width:130px">
+                        <option  value="" selected="selected">請選擇棟別</option>
+                    </select> 
+                    <select class="form-control" id="sltKW" style="width:130px">
+                        <option  value="" selected="selected">請選擇庫位</option>
+                    </select>
+                    <button class="btn btn-primary" type="button" id="btnAddLocation">增加</button>
+                    <input  name="inputLocation" id="inputLocation" value=""/>                 
+                </div>  
+    </div>
+</div>

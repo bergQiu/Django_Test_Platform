@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}myself edit{% endblock %}
+{% block content %}
+<div class="row text-center vertical-middle-sm">
+    <h1>Edit myself information</h1>
+    <hr>
+    <div class="row">
+        <div class="col-md-6">
+            <form action="." class="form-horizontal" method="post">
+                {% csrf_token  %}
+            <div class="row">
+                <div class="col-md-4 text-right"><span>Username：</span></div>
+                <div class="col-md-8 text-left">{{user.username}}</div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-4 text-right"><span>Email：</span></div>
+                <div class="col-md-8 text-left">{{user_form.email}}</div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-4 text-right"><span>Birthday：</span></div>
+                <div class="col-md-8 text-left">{{userprofile_form.birth}}</div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-4 text-right"><span>Tel：</span></div>
+                <div class="col-md-8 text-left">{{userprofile_form.phone}}</div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-4 text-right"><span>School：</span></div>
+                <div class="col-md-8 text-left">{{userinfo_form.school}}</div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-4 text-right"><span>Company：</span></div>
+                <div class="col-md-8 text-left">{{userinfo_form.company}}</div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-4 text-right"><span>Profession：</span></div>
+                <div class="col-md-8 text-left">{{userinfo_form.profession}}</div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-4 text-right"><span>Address：</span></div>
+                <div class="col-md-8 text-left">{{userinfo_form.address}}</div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-4 text-right"><span>Aboutme：</span></div>
+                <div class="col-md-8 text-left">{{userinfo_form.aboutme}}</div>
+            </div>
+            <br>
+            <div class="row">
+                <input type="submit" class="btn btn-primary btn-lg" value = "Submit">
+            </div>
+        </form>
+        </div>
+        <div class="col-md-6">   
+                <div class="row">
+                        <div style="margin-right:100px">
+                            <img src="{{ userinfo_img | striptags }}" class="img-circle" id="my_photo" name="user_face">
+                            <br>
+                            <!-- <label>{{ user.username }}</label> -->
+                        </div> 
+                    </div>  
+                    <br>
+                    <div class="row">
+                         <div style="margin-right:100px">{{ user.username }}</div>
+                        </div>             
+        <!-- <div style="margin-right:100px"><button class="btn btn-primary btn-lg" id="upload_img" onclick="upload_img_layer()">upload my photo</button></div> -->
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,211 @@
+{% extends "mytest/a.html" %}
+{% load staticfiles %}
+{% block title %}
+new_keps_time
+{% endblock %}
+{% block content %}
+
+<!-- <!DOCTYPE html> -->
+<!-- <html> -->
+    <head>
+            <meta http-equiv = 'X-UA-Compatible' content="IE=Edge">
+            <meta charset="utf-8">
+            <meta name="viewport" content="width = device-width,initial-scale = 1">
+            <title>New page for KEPServerEXV6</title>
+            <script src="{% static 'js/jquery.js' %}"></script>
+            <script src="{% static 'js/jquery-ui.js'%}"></script>
+            <script type="text/javascript" src="{% static 'js/layer.js' %}"></script>
+            <script type="text/javascript" src="{% static 'js/laydate/laydate.js' %}"></script>
+            <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+            <style type="text/css">
+                #info{
+                    text-align: left;
+                    margin: 50px 0px 30px 70%;
+                }
+                #body_title{
+                    text-align: center;
+                    margin: 6% 0px 20px 0px;
+                }
+                #tab{
+                    margin: 0px 50px 10px 50px;
+                }
+            </style>
+            <script type="text/javascript">  
+                $(document).on("click",".input1_time",function(){
+                    laydate.render({
+                            elem:this,
+                            trigger:"click",
+                            type:"datetime"
+                        })
+                })
+
+                $(document).ready(function(){
+                    // laydate.render({
+                    //         elem:".input1_time",後生成的元素
+                    //         // trigger:"click",
+                    //         type:"datetime"
+                    //     })
+
+                    $(".del_btn").click(function(){
+                        var User = $(this).parents("tr").children("td").eq(1).text();
+                        var Start = $(this).parents("tr").children("td").eq(2).text();
+                        var End = $(this).parents("tr").children("td").eq(3).text();
+                        var Desc = $(this).parents("tr").children("td").eq(4).text();
+
+                        layer.confirm("確定刪除" + Desc + "此筆記錄，該動作不可撤銷！",
+                        {btn:["確定","取消"],icon:7},
+                        function(){
+                            $.ajax({
+                                url:"{% url 'mytest:del_tpmis_kep_control' %}",
+                                type:"POST",
+                                data:{  "User":User,
+                                        "Start":Start,
+                                        "End":End},
+                                success:function(data){
+                                    if(data == "1"){
+                                        layer.msg("數據刪除成功,1s後刷新",{time:1000,icon:1},function(){
+                                            parent.location.reload()
+                                        }) }
+                                    else{
+                                        layer.msg("數據刪除失敗,1s後刷新",{time:1000,icon:2});
+                                    }                                      
+                                },
+                                error:function(data){layer.msg("連接異常,1s後刷新",{time:1000,icon:5});}
+                            })
+                            // layer.msg()
+                        },function(){
+                            layer.msg("動作取消",
+                            {time:1000,icon:5})
+                        })
+                    })
+
+                    $(".edit_btn").click(function(){
+                        var content_ = ""
+                        // var id = 
+                        var User = $(this).parents("tr").children("td").eq(1).text();
+                        var Start = $(this).parents("tr").children("td").eq(2).text();
+                        var End = $(this).parents("tr").children("td").eq(3).text();
+                        var Desc = $(this).parents("tr").children("td").eq(4).text();
+                        
+                        content_ += "<div id='tab_d' ><table  id='tab_s' class='table table-hover' style='margin:10px 20px 0px 20px;width:800px'><tr><td style='width:150px'>User</td><td>Start</td><td>End</td><td>Desc</td></tr>";
+                        if(User == "--")
+                        {
+                            content_ += "<tr><td style='width:150px'><input class='input1_user' type='text' style='border:0px' value='"+ User +"'/>"
+                        }
+                        else{
+                            content_ += "<tr><td style='width:150px'>"+ User 
+                        }
+                        content_ +="</td><td><input class='input1_time' type='text' style='border:0px' value='"+Start
+                        content_ +="'/></td><td><input class='input1_time' type='text' style='border:0px' value='"+ End 
+                        content_ +="'/></td><td><input class='input1_desc' type='text' style='border:0px' value='"+ Desc 
+                        content_ +="'/></td></tr></table></div>";
+                        layer.open({
+                            title:"Modify Data",
+                            area:["840px","250px"],
+                            // skin:"layui-layre-rim",
+                            type:1,
+                            content:content_,
+                            // shift:"top",
+                            // offset:"100px",
+                            btn:["確定","取消"],
+                            yes:function(){
+                                
+                                var start_time = new Date($("#tab_s").find("tr:eq(1)").find(".input1_time:eq(0)").val())      
+                                var end_time = new Date($("#tab_s").find("tr:eq(1)").find(".input1_time:eq(1)").val())
+                                var new_desc = $(".input1_desc").val()
+                                if(end_time.getTime() < start_time.getTime()){
+                                    layer.msg("輸入時間錯誤，請檢查後輸入")
+                                }else{
+                                    if(User == "--"){
+                                        var new_User = $(".input1_user").val()
+                                    }else{
+                                        var new_User = User
+                                    }
+                                    $.ajax({
+                                        url:"{% url 'mytest:modify_tpmis_kep_control' %}",
+                                        type:"POST",
+                                        data:{
+                                            'user':User,
+                                            'new_user':new_User,
+                                            'old_start':Start,
+                                            'old_end':End,
+                                            'new_start':format(start_time),
+                                            'new_end':format(end_time),
+                                            'new_desc':new_desc
+                                            },
+                                        dataType:"JSON",
+                                        success:function(data){
+                                            if(data == "1"){
+                                                // alert("數據修改成功")
+                                                layer.msg("數據修改成功,1s後刷新",
+                                                    {   time:1000},
+                                                        function(){
+                                                            parent.location.reload();
+                                                    });
+                                            }else{
+                                                layer.msg("數據修改失敗,1s後刷新",{time:1000});
+                                            }
+                                        },
+                                        error:function(data){
+                                            layer.msg("連接異常,1s後刷新",{time:1000});
+                                        }
+
+                                    })
+                                }
+                            }
+                        })
+                    })
+                })
+
+                function format(time_data){
+                    // alert("ee")
+                    var year = time_data.getFullYear().toString();
+                    var month = (time_data.getMonth() + 1).toString();
+                    var day = time_data.getDate().toString();
+                    var hour = time_data.getHours().toString();
+                    var minute = time_data.getMinutes().toString();
+                    var seconds = time_data.getSeconds().toString();
+                    return year+'-'+month+'-'+day+' '+hour+':'+minute+':'+seconds
+                }
+            </script>
+    </head>
+    <body>
+        <div id="body_title"><h1>KEPServerEXV6 time control</h1></div>
+        <div id='info'>Datebase:test_Berg <br> Collection:tpmis_keo_control</div>
+        <div id="tab">
+            <table class="table table-hover">
+                    <tr align = 'justify'>
+                        <td>Num</td>
+                        <td>User</td>
+                        <td>Start</td>
+                        <td>End</td>
+                        <td colspan="2">Description</td>
+                        <td>Operation</td>
+                    </tr>
+                    {% for row in rows %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ row.User }}</td>
+                        <td>{{ row.Start }}</td>
+                        <td>{{ row.End }}</td>
+                        <td colspan="2">{{ row.Desc }}</td>
+                        <td>
+                                <a href="javascript:" name = "edit" class="edit_btn"><span class="glyphicon glyphicon-pencil"></span></a>
+                                <a href="javascript:" name = "delete" class="del_btn"><span class="glyphicon glyphicon-trash"></span></a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    {% endfor %}
+                    <td>--</td>
+                    <td>--</td>
+                    <td>--</td>
+                    <td>--</td>
+                    <td colspan="2">--</td>
+                    <td>
+                            <a href="javascript:" name = "edit" class="edit_btn" ><span style="margin-left: 20px" class="glyphicon glyphicon-plus"></span></a>           
+                    </td>
+            </table>
+        </div>
+    </body>
+<!-- </html> -->
+{% endblock %}

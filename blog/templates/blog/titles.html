@@ -1,0 +1,23 @@
+{%　extends "base.html"　%}
+{%  block title %}blog titles {% endblock %}
+{% block content %}
+<div class="row text-centent vertical-middle-sm">
+    <h1>我的博客</h1>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-md-8">
+        <ul>
+            {%  for blog in blogs %}
+            <li>
+                <a href="{{blog.id}}">{{blog.title}}</a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col-xs-6 cpl-md-4">
+        <h2>廣告</h2>
+        <p>hello world,how a nice morning</p>
+        <img src="http://ww.mrwallpaper.com/wallpapers/Fluffy-Cat.jpg" width="200px">
+    </div>
+</div>
+{% endblock %}

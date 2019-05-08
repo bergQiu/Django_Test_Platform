@@ -1,0 +1,124 @@
+{% extends "article/base.html" %} 
+{% load staticfiles %} 
+{% block title %}Images{% endblock %} 
+{% block content %}
+{% load thumbnail %}
+<div>
+    <button type="button" class="btn btn-primary btn-lg btn-block" id="addImage">添加圖片</button>
+    <div style="margin-top:10px">
+        <table class="table table-hover">
+            <tr>
+                <td>序號</td>
+                <td>標題</td>
+                <td>圖片</td>
+                <td>操作</td>
+            </tr>
+            {% for image in images %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td style="display:none">{{ image.id }}</td>
+                <td>{{ image.title }}</td>
+                <!-- <td>{{ image.image }}</td> -->
+                <!-- <td><img src="{{ image.image.url }}" width="100px" height="100px" alt=""></td> -->
+                {% thumbnail image.image '100x100' as im %}
+                <td><img src="{{ im.url }}"  alt=""></td>
+                {% endthumbnail %}
+                <td><a href="javascript:" class="del_btn" name='delete'><span class="glyphicon glyphicon-trash" style="margin-left:20px" ></span></a></td>
+            </tr>
+            {% empty %}
+            <p>這裡還沒有圖片，請點擊上面的按鈕添加圖片！</p>
+            {% endfor %}
+
+        </table>
+    </div>
+</div>
+<script src="{% static 'js/jquery.js' %}"></script>
+<script src="{% static 'js/layer.js' %}"></script>
+<script type="text/javascript">
+    $(document).on("click",".del_btn",function(){
+        var image_id = $(this).closest("tr").children("td").eq(1).text()
+        var image_title = $(this).closest("tr").children("td").eq(2).text()
+        layer.open({
+            type:1,
+            skin:"layui-layer-rim",
+            area:["400px","200px"],
+            title:"刪除圖片",
+            content:"<div class='text-center' style='margin-top:20px'><p>是否確定刪除《"+ image_title +"》</p></div>",
+            btn:["確定","取消"],
+            yes:function(){
+                $.ajax({
+                    url:"{% url 'image:delete_image' %}",
+                    type:"POST",
+                    data:{"image_id":image_id},
+                    success:function(e){
+                        // alert(e['result'])
+                        if(e['result'] == 1){layer.msg("刪除成功",{"time":800},function(){window.location.reload()})}
+                        else{layer.msg("刪除失敗",{"time":800})}
+                    },
+                    error:function(e){
+                        layer.msg("這裡有一個問題，請聯繫管理員！",{"time":800})
+                    }
+                })
+            }
+        })
+    })
+
+    $(document).ready(function () {
+        $("#addImage").click(function () {
+            var index = layer.open({
+                type: 1,
+                skin: 'layui-layer-demo',
+                closeBtn: 0,
+                shift: 2,
+                shadeClose: true,
+                title: "Add Image",
+                area: ['600px', '440px'],
+                content: "<div style='padding:20px'><p>請新增擴展名是.jpg或.png的網上照片的地址</p>" +
+                    "<form><div class='form-group'><label for='phototitle' class='col-sm-2 control-label'>標題</label><div class='col-sm-10'><input id='phototitle' type='text' class='form-control' style='margin-bottom:5px'></div></div>" +
+                    "<div class='form-group'><label for='photourl' class='col-sm-2 control-label'>地址</label><div class='col-sm-10'><input id='photourl' type='text' class='form-control' style='margin-bottom:5px'></div></div>" +
+                    "<div class='form-group'><label for='description' class='col-sm-2 control-label'>描述</label><div class='col-sm-10'><textarea id='photodescription' type='text' class='form-control' style='margin-bottom:5px'></textarea></div></div>" +
+                    "<div class='form-bottom:5px'><div class='col-sm-offset-2 col-sm-10'><input id='newphoto' type='button' class='btn btn-default' style='float:right' value='Add it'></div></div>" +
+                    "</form>" +
+                    "</div>",
+                success: function () {
+                    $("#newphoto").on('click', function () {
+                        
+                        var title = $("#phototitle").val()
+                        var url = $("#photourl").val()
+                        var description = $("#photodescription").val()
+                        if (title == '' || url == '' || description == '') {
+                            layer.msg("輸入格式不合法，請檢查後載提交！", {
+                                "time": 800
+                            })
+                        } else {
+                            var photo = {
+                                "title": title,
+                                "url": url,
+                                "description": description
+                            }
+                            var index = layer.load(0,{shade:false})
+                            $.ajax({
+                                url: "{% url 'image:upload_image' %}",
+                                type: "POST",
+                                data: photo,
+                                success: function (e) {
+                                    var status = e['status']
+                                    if (status == '1') {
+                                        layer.close;
+                                        window.location.reload()
+                                    } else {
+                                        layer.close(index)
+                                        layer.msg("圖片獲取失敗，請更換圖片！", {"time": 800},function(){})
+                                    }
+                                }
+                            })
+                        }
+                    })
+                }
+            })
+        })
+    })
+    // http://hades/def/wlhead.jpg
+</script>
+{% endblock %}
+
